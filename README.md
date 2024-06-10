@@ -1,4 +1,4 @@
-# terraform-mps-plugin
+# ansible-mps-plugin
 
 ## Build
 ```shell
@@ -11,7 +11,7 @@
 ```
 or (requires build):
 ```shell
-java -jar target/terraform-plugin-0.0.1-SNAPSHOT.jar
+java -jar target/ansible-plugin-0.0.1-SNAPSHOT.jar
 ```
 
 ## Update Submodule

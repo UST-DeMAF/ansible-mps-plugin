@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ust.tad</groupId>
-	<artifactId>terraform-mps-plugin</artifactId>
+	<artifactId>ansible-mps-plugin</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>terraform-mps-plugin</name>
-	<description>terraform plugin using JetBrains MPS for technology-agnostic deployments</description>
+	<name>ansible-mps-plugin</name>
+	<description>ansible plugin using JetBrains MPS for technology-agnostic deployments</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
