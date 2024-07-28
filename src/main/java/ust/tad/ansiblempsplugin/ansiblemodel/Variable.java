@@ -4,68 +4,52 @@ import java.util.Objects;
 
 public class Variable {
     
-    private String identifier;
-
-    private String expression;
+    private String name;
+    private String value;
 
 
     public Variable() {
     }
 
-    public Variable(String identifier, String expression) {
-        this.identifier = identifier;
-        this.expression = expression;
+    public Variable(String name, String value) {
+        this.name = name;
+        this.value = value;
     }
 
-    public String getIdentifier() {
-        return this.identifier;
+    public String getName() {
+        return name;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getExpression() {
-        return this.expression;
+    public String getValue() {
+        return value;
     }
 
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
-
-    public Variable identifier(String identifier) {
-        setIdentifier(identifier);
-        return this;
-    }
-
-    public Variable expression(String expression) {
-        setExpression(expression);
-        return this;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Variable)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Variable)) return false;
         Variable variable = (Variable) o;
-        return Objects.equals(identifier, variable.identifier) && Objects.equals(expression, variable.expression);
+        return Objects.equals(name, variable.name) && Objects.equals(value, variable.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(identifier, expression);
+        return Objects.hash(name, value);
     }
 
     @Override
     public String toString() {
-        return "{" +
-            " identifier='" + getIdentifier() + "'" +
-            ", expression='" + getExpression() + "'" +
-            "}";
+        return "Variable{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
-
-    
 }

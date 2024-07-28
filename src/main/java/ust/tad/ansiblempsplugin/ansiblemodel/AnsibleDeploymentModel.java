@@ -6,32 +6,22 @@ import java.util.Set;
 
 public class AnsibleDeploymentModel {
 
-    private Set<Resource> resources = new HashSet<>();
+    private Set<Play> plays = new HashSet<>();
 
-    private Set<Variable> variables = new HashSet<>();
 
     public AnsibleDeploymentModel() {
     }
 
-    public AnsibleDeploymentModel(Set<Resource> resources, Set<Variable> variables) {
-        this.resources = resources;
-        this.variables = variables;
+    public AnsibleDeploymentModel(Set<Play> plays) {
+        this.plays = plays;
     }
 
-    public Set<Resource> getResources() {
-        return resources;
+    public Set<Play> getPlays() {
+        return plays;
     }
 
-    public void setResources(Set<Resource> resources) {
-        this.resources = resources;
-    }
-
-    public Set<Variable> getVariables() {
-        return variables;
-    }
-
-    public void setVariables(Set<Variable> variables) {
-        this.variables = variables;
+    public void setPlays(Set<Play> resources) {
+        this.plays = plays;
     }
 
     @Override
@@ -39,19 +29,18 @@ public class AnsibleDeploymentModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AnsibleDeploymentModel that = (AnsibleDeploymentModel) o;
-        return Objects.equals(resources, that.resources) && Objects.equals(variables, that.variables);
+        return Objects.equals(plays, that.plays);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resources, variables);
+        return Objects.hash(plays);
     }
 
     @Override
     public String toString() {
         return "AnsibleDeploymentModel{" +
-                "resources=" + resources +
-                ", variables=" + variables +
+                "plays=" + plays +
                 '}';
     }
 }

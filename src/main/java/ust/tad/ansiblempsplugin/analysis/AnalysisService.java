@@ -25,19 +25,19 @@ import java.util.stream.Collectors;
 @Service
 public class AnalysisService {
 
-    private static final List<String> supportedProviders = List.of("azurerm");
+    private static final List<String> supportedModules = List.of("docker_container");
     @Autowired
     ModelsService modelsService;
     @Autowired
     AnalysisTaskResponseSender analysisTaskResponseSender;
     @Autowired
     private TransformationService transformationService;
+
+    private static final Set<String> supportedFileExtensions = Set.of("yaml", "yml");
     private TechnologySpecificDeploymentModel tsdm;
     private TechnologyAgnosticDeploymentModel tadm;
     private Set<Integer> newEmbeddedDeploymentModelIndexes = new HashSet<>();
-    private Set<Variable> variables = new HashSet<>();
-
-    private Set<Resource> resources = new HashSet<>();
+    private Set<Play> plays = new HashSet<>();
 
     /**
      * Start the analysis of the deployment model.
@@ -114,29 +114,31 @@ public class AnalysisService {
 
     /**
      * Iterate over the locations and parse in all files that can be found.
-     * The file has to have the fileextension ".tf", otherwise it will be ignored.
+     * If the URL ends with a ".", remove it.
+     * The file has to have a fileextension contained in the supported fileextension Set, otherwise it will be ignored.
      * If the given location is a directory, iterate over all contained files.
      * Removes the deployment model content associated with the old directory locations
      * because it has been resolved to the contained files.
      *
      * @param locations
      * @throws InvalidNumberOfContentException
-     * @throws URISyntaxException
      * @throws InvalidAnnotationException
      * @throws InvalidNumberOfLinesException
      * @throws IOException
+     * @throws URISyntaxException
      * @throws InvalidPropertyValueException
-     * @throws InvalidRelationException
-     * @throws MalformedURLException
      */
-    private void runAnalysis(List<Location> locations) throws InvalidNumberOfContentException,
-            URISyntaxException, IOException, InvalidNumberOfLinesException,
-            InvalidAnnotationException, InvalidPropertyValueException, InvalidRelationException {
+    private void runAnalysis(List<Location> locations) throws URISyntaxException, IOException, InvalidNumberOfLinesException, InvalidAnnotationException, InvalidNumberOfContentException, InvalidPropertyValueException, InvalidRelationException {
         for (Location location : locations) {
-            if ("file".equals(location.getUrl().getProtocol()) && new File(location.getUrl().toURI()).isDirectory()) {
-                File directory = new File(location.getUrl().toURI());
+            String locationURLString = location.getUrl().toString().trim().replaceAll("\\.$", "");
+            URL locationURL = new URL(locationURLString);
+
+            // TODO think about what to do with directories
+           /* if ("file".equals(locationURL.getProtocol()) && new File(locationURL.toURI()).isDirectory()) {
+                File directory = new File(locationURL.toURI());
                 for (File file : Objects.requireNonNull(directory.listFiles())) {
-                    if ("tf".equals(StringUtils.getFilenameExtension(file.toURI().toURL().toString()))) {
+                    String fileExtension = StringUtils.getFilenameExtension(file.toURI().toURL().toString());
+                    if (fileExtension != null && supportedFileExtensions.contains(fileExtension)) {
                         parseFile(file.toURI().toURL());
                     }
                 }
@@ -147,188 +149,117 @@ public class AnalysisService {
                     }
                 }
                 this.tsdm.removeDeploymentModelContent(contentToRemove);
-            } else {
-                if ("tf".equals(StringUtils.getFilenameExtension(location.getUrl().toString()))) {
-                    parseFile(location.getUrl());
-                }
+            } else {*/
+            String fileExtension = StringUtils.getFilenameExtension(locationURLString);
+            Play parsed;
+            if (supportedFileExtensions.contains(fileExtension)) {
+                parseFile(locationURL);
+                System.out.println(plays);
             }
+            /*}*/
         }
+
         this.tadm = transformationService.transformInternalToTADM(this.tadm,
-                new AnsibleDeploymentModel(resources, variables));
+                new AnsibleDeploymentModel(this.plays));
     }
 
-    /**
-     * Parses in a file.
-     * Creates entities of the ansible model for the resources and variables it can find.
-     * At the same time, updates the technology-specific deployment model.
-     * Iterates over the lines in the file and adds corresponding Line entities to a new
-     * DeploymentModelContent.
-     * In the end it adds the DeploymentModelContent to the technology-specific deployment model.
-     *
-     * @param url
-     * @throws IOException
-     * @throws InvalidNumberOfLinesException
-     * @throws InvalidAnnotationException
-     */
-    private void parseFile(URL url) throws IOException, InvalidNumberOfLinesException,
-            InvalidAnnotationException {
+    private void parseFile(URL url) throws IOException, InvalidNumberOfLinesException, InvalidAnnotationException {
         DeploymentModelContent deploymentModelContent = new DeploymentModelContent();
         deploymentModelContent.setLocation(url);
-        List<Line> lines = new ArrayList<>();
-        int lineNumber = 1;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        while (reader.ready()) {
-            String nextline = reader.readLine();
-            if (nextline.startsWith("resource")) {
-                Resource resource = new Resource();
-                String[] lineTokens = nextline.split(" ");
-                String resourceType = lineTokens[1].replaceAll("(^\")|(\"$)", "");
-                resource.setResourceType(resourceType);
-                String resourceName = lineTokens[2].replaceAll("(^\")|(\"$)", "");
-                resource.setResourceName(resourceName);
-                Line line = new Line();
-                line.setNumber(lineNumber);
-                line.setAnalyzed(true);
-                double comprehensibility = 0D;
-                //set comprehensibility based on resource type
-                String providerOfResource = resourceType.split("_")[0];
-                if (supportedProviders.contains(providerOfResource)) {
-                    comprehensibility = 1D;
-                    line.setComprehensibility(comprehensibility);
-                } else {
-                    line.setComprehensibility(0.5D);
-                }
-                lines.add(line);
-                lineNumber++;
-                nextline = reader.readLine();
-                while (!nextline.startsWith("}")) {
-                    // Parse Argument
-                    if (nextline.contains("=")) {
-                        resource.addArguments(parseArgument(reader, nextline, lines, lineNumber, comprehensibility, ""));
-                        lineNumber = lines.stream().max(Comparator.comparing(Line::getNumber)).get().getNumber();
-                    // Parse Block
-                    } else if (nextline.contains("{")) {
-                        nextline = nextline.trim();
-                        String[] tokens = nextline.split(" ");
-                        Block block = new Block();
-                        block.setBlockType(tokens[0]);
-                        lines.add(new Line(lineNumber, comprehensibility, true));
-                        if (!nextline.endsWith("}")) {
-                            lineNumber++;
-                            nextline = reader.readLine();
-                            while (!nextline.trim().startsWith("}")) {
-                                if (nextline.contains("=")) {
-                                    block.addArguments(parseArgument(reader, nextline, lines, lineNumber, comprehensibility, ""));
-                                    lineNumber = lines.stream().max(Comparator.comparing(Line::getNumber)).get().getNumber();
-                                }// TODO else nested block?
-                                lineNumber++;
-                                nextline = reader.readLine();
-                            }
-                        }
-                        resource.addBlock(block);
-                    }
-                    lineNumber++;
-                    nextline = reader.readLine();
-                }
-                this.resources.add(resource);
-            } else if (nextline.startsWith("variable")) {
-                String identifier = nextline.split(" ")[1].replaceAll("(^\")|(\"$)", "");
-                lines.add(new Line(lineNumber, 1D, true));
 
-                String expression = "";
-                lineNumber++;
-                nextline = reader.readLine();
-                while (!nextline.startsWith("}")) {
-                    // TODO check if expression overwritten by command
-                    if (nextline.trim().split(" ")[0].equals("default")) {
-                        Set<Argument> arguments = parseArgument(reader, nextline, lines, lineNumber, 1D, identifier);
-                        lineNumber = lines.stream().max(Comparator.comparing(Line::getNumber)).get().getNumber();
-                        for (Argument argument: arguments) {
-                            this.variables.add(new Variable(argument.getIdentifier(), argument.getExpression()));
-                        }
-                    } else {
-                        lines.add(new Line(lineNumber, 0D, true));
-                    }
-                    lineNumber++;
-                    nextline = reader.readLine();
+        List<Line> lines = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        boolean openPlayComponent = false;
+
+        HashSet<Host> hosts = new HashSet<Host>();
+        boolean become = false;
+        String name = "";
+        HashSet<Task> preTasks = new HashSet<Task>();
+        HashSet<Role> roles = new HashSet<Role>();
+        HashSet<Task> postTasks = new HashSet<Task>();
+        HashSet<Task> tasks = new HashSet<Task>();
+        HashSet<Variable> vars = new HashSet<Variable>();
+
+        //First Play Object
+        while (reader.lines() != null && reader.ready()) {
+            String line = reader.readLine();
+            if (line.trim().startsWith("hosts")) {
+                hosts = parseHosts(reader, line, url);
+            } else if (line.trim().startsWith("become")) {
+                become = Boolean.parseBoolean(line.split(":")[1].trim());
+            } else if (line.trim().startsWith("pre_tasks")) {
+                preTasks = parseTasks(reader, line);
+            } else if (line.trim().startsWith("roles")) {
+                roles = parseRoles(reader, line, url);
+            } else if (line.trim().startsWith("post_tasks")) {
+                postTasks = parseTasks(reader, line);
+            } else if (line.trim().startsWith("tasks")) {
+                tasks = parseTasks(reader, line);
+            } else if (line.trim().startsWith("vars")) {
+                vars = parseVars(reader, line);
+            } else if (line.startsWith("- name:")) { // No trim here, because we only want to find play names
+                if (openPlayComponent) {
+                    Play play = new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
+                    //  abschließen und neues Play erzeugen
+                    plays.add(play);
+                    clean(hosts, preTasks, tasks, postTasks, roles, vars, become);
+                    name = line.split(":")[1].trim();
+                } else {
+                    name = line.split(":")[1].trim();
+                    openPlayComponent = true;
                 }
             }
-            lineNumber++;
         }
+
+        // letztes Play hinzufügen
+        Play play = new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
+        //  abschließen und neues Play erzeugen
+        plays.add(play);
+
+
         reader.close();
 
-        deploymentModelContent.setLines(lines);
-        this.tsdm.addDeploymentModelContent(deploymentModelContent);
+        if (!lines.isEmpty()) {
+            deploymentModelContent.setLines(lines);
+            this.tsdm.addDeploymentModelContent(deploymentModelContent);
+        }
     }
 
-    /**
-     * Parse arguments from a ansible file.
-     * Argument expressions can be primitive types, but also maps or lists.
-     * This method tests which argument expression type is used and parses in the argument accordingly.
-     * Lists and maps can span across several lines, therefore read in all relevant lines.
-     * For lists, one argument is created with the argument expression set to the complete list.
-     * For maps, one argument for each key-value pair in the map is created.
-     *
-     * @param reader the BufferedReader that reads the file.
-     * @param currentLine the line in the file that is currently read.
-     * @param lines the lines of the internal tsdm.
-     * @param lineNumber the number of the line the reader is currently at.
-     * @param comprehensibility that should be set for the parsed arguments.
-     * @param identifier an optional identifier for the argument.
-     * @return a set of parsed arguments.
-     * @throws IOException
-     * @throws InvalidAnnotationException
-     */
-    private Set<Argument> parseArgument(BufferedReader reader, String currentLine, List<Line> lines, int lineNumber, double comprehensibility, String identifier) throws IOException, InvalidAnnotationException {
-        Set<Argument> arguments = new HashSet<>();
-        String[] tokens = currentLine.split("=",2);
-        String argumentIdentifier = tokens[0].trim();
-        if (!identifier.isEmpty()) {
-            argumentIdentifier = identifier;
-        }
-        String argumentExpression = tokens[1].trim();
-        //list: comma seperated in same line or in different lines, comma after the final value is allowed, but not required
-        if (argumentExpression.startsWith("[")) {
-            List<String> listElements = Arrays.stream(argumentExpression.split(",")).map(String::trim).collect(Collectors.toList());
-            lines.add(new Line(lineNumber, comprehensibility, true));
-            while (!(listElements.get(listElements.size()-1)).trim().endsWith("]")) {
-                currentLine = reader.readLine();
-                lineNumber++;
-                listElements.addAll(Arrays.stream(currentLine.split(",")).map(String::trim).collect(Collectors.toList()));
-                lines.add(new Line(lineNumber, comprehensibility, true));
-            }
-            arguments.add(new Argument(argumentIdentifier, listElements.toString().replaceFirst("\\[\\[", "[").replaceFirst(", ,*]]", "]")));
-        //map Key/value pairs can be separated by either a comma or a line break.
-        //The values in a map can be arbitrary expressions.
-        } else if (argumentExpression.startsWith("{")) {
-            String argumentExpressionLine = argumentExpression.replaceFirst("\\{", "");
-            while (!argumentExpressionLine.contains("}")) {
-                if (argumentExpressionLine.contains("=")) {
-                    List<String> listOfArguments = Arrays.stream(argumentExpressionLine.split(",")).map(String::trim).collect(Collectors.toList());
-                    for (String argumentString: listOfArguments ) {
-                        String[] argumentFields = argumentString.split("=");
-                        arguments.add(new Argument(argumentIdentifier.concat(".").concat(argumentFields[0].trim()), argumentFields[1].trim()));
-                    }
-                    lines.add(new Line(lineNumber, comprehensibility, true));
-                }
-                argumentExpressionLine = reader.readLine();
-                lineNumber++;
-            }
-            if (argumentExpressionLine.contains("=")) {
-                argumentExpressionLine = argumentExpressionLine.replace("}", "");
-                List<String> listOfArguments = Arrays.stream(argumentExpressionLine.split(",")).map(String::trim).collect(Collectors.toList());
-                for (String argumentString: listOfArguments ) {
-                    String[] argumentFields = argumentString.split("=");
-                    arguments.add(new Argument(argumentIdentifier.concat(".").concat(argumentFields[0].trim()), argumentFields[1].trim()));
-                }
-                lines.add(new Line(lineNumber, comprehensibility, true));
-            }
-        // primitive types
-        } else {
-            arguments.add(new Argument(argumentIdentifier, argumentExpression));
-            lines.add(new Line(lineNumber, comprehensibility, true));
-        }
-        return arguments;
+    private void clean(HashSet<Host> hosts, HashSet<Task> preTasks, HashSet<Task> tasks, HashSet<Task> postTasks, HashSet<Role> roles, HashSet<Variable> vars, boolean become) {
+        hosts.clear();
+        preTasks.clear();
+        tasks.clear();
+        postTasks.clear();
+        roles.clear();
+        vars.clear();
     }
 
+    private HashSet<Host> parseHosts(BufferedReader reader, String line, URL url) {
+
+        // TODO read file hosts.yml / hosts.yaml in same directory with new BufferedReader
+
+        HashSet<Host> hosts = new HashSet<>();
+        return hosts;
+    }
+
+    private HashSet<Task> parseTasks(BufferedReader reader, String line) {
+
+        HashSet<Task> tasks = new HashSet<>();
+
+        return tasks;
+    }
+
+    private HashSet<Role> parseRoles(BufferedReader reader, String line, URL url) {
+
+        // TODO read roles files based on role name with new BufferedReader
+
+        HashSet<Role> roles = new HashSet<>();
+        return roles;
+    }
+
+    private HashSet<Variable> parseVars(BufferedReader reader, String line) {
+
+        HashSet<Variable> vars = new HashSet<>();
+        return vars;
+    }
 }
