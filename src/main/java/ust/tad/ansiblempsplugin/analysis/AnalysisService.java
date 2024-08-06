@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
+import ust.tad.ansiblempsplugin.analysis.ansibleactions.ActionParser;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
 import ust.tad.ansiblempsplugin.analysistask.Location;
 import ust.tad.ansiblempsplugin.ansiblemodel.Module;
@@ -32,6 +33,8 @@ public class AnalysisService {
     AnalysisTaskResponseSender analysisTaskResponseSender;
     @Autowired
     private TransformationService transformationService;
+    @Autowired
+    private ActionParser actionParser;
 
     private static final Logger LOG =
             LoggerFactory.getLogger(AnalysisTaskResponseSender.class);
@@ -299,57 +302,15 @@ public class AnalysisService {
         }
         HashSet<Task> tasks = new HashSet<>();
         mainTasksList.forEach(taskYaml -> {
-            Module action;
-            // Here we have the ontological vendor-specific modules in ansible.
-            // If the ansible play uses a specific task-type it must have a dedicated parsing here.
-            if (taskYaml.get("community.general.launchd") != null) {
-                action = parseLaunchD(taskYaml);
-            } else if (taskYaml.get("docker_network") != null) {
-                action = parseDockerNetwork(taskYaml);
-            } else if (taskYaml.get("docker_image") != null) {
-                action = parseDockerImage(taskYaml);
-            } else if (taskYaml.get("docker_container") != null) {
-                action = parseDockerContainer(taskYaml);
-            } else if (taskYaml.get("apt") != null) {
-                action = parseApt(taskYaml);
-            } else {
-                action = new Module("default-fallback");
-            }
             tasks.add(new Task(
                     taskYaml.get("name").toString(),
                     parseVars(taskYaml.get("vars")),
                     Boolean.parseBoolean(taskYaml.getOrDefault("become", "false").toString()),
-                    action
+                    actionParser.parseActions(taskYaml)
             ));
         });
         return tasks;
     }
-
-
-    private Module parseApt(Map<String, Object> taskYaml) {
-        return new Apt();
-    }
-
-    private Module parseLaunchD(Map<String, Object> taskYaml) {
-        return new LaunchD();
-    }
-
-    private Module parseDockerNetwork(Map<String, Object> taskYaml) {
-        Map<String, String> dockerNetworkYaml = (Map<String, String>) taskYaml.get("docker_network");
-        return new DockerNetwork(
-                dockerNetworkYaml.get("name"),
-                dockerNetworkYaml.get("driver")
-        );
-    }
-
-    private Module parseDockerImage(Map<String, Object> taskYaml) {
-        return new DockerImage();
-    }
-
-    private DockerContainer parseDockerContainer(Map<String, Object> taskYaml) {
-        return new DockerContainer();
-    }
-
 
     private HashSet<Role> parseRoles(URL url, Object mainRoleYaml, HashSet<Variable> globalVars) throws IOException {
 

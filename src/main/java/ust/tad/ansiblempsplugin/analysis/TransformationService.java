@@ -5,11 +5,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ust.tad.ansiblempsplugin.analysis.ansibleproviders.AzureRMPostProcessor;
-import ust.tad.ansiblempsplugin.analysis.ansibleproviders.PostProcessorFailedException;
 import ust.tad.ansiblempsplugin.ansiblemodel.AnsibleDeploymentModel;
 import ust.tad.ansiblempsplugin.models.tadm.*;
 
@@ -27,12 +24,6 @@ public class TransformationService {
 
     @Value("${mps.result.path}")
     private String mpsOutputPath;
-
-    @Value("${runProviderPostProcessors}")
-    private boolean runProviderPostProcessors;
-
-    @Autowired
-    private AzureRMPostProcessor azureRMPostProcessor;
 
     /**
      * Transforms given the internal ansible model to an EDMM model.
@@ -59,9 +50,6 @@ public class TransformationService {
         runMPSTransformation();
         TechnologyAgnosticDeploymentModel transformationResult = importMPSResult();
         tadm.addFromOtherTADM(transformationResult);
-        if (runProviderPostProcessors) {
-            tadm = postProcessTADM(tadm);
-        }
         return tadm;
     }
 
@@ -123,28 +111,4 @@ public class TransformationService {
                 TechnologyAgnosticDeploymentModelMixIn.class);
         return mapper.readValue(new File(mpsOutputPath), TechnologyAgnosticDeploymentModel.class);
     }
-
-    /**
-     * Run post-processing steps of the technology-agnostic deployment model for specific ansible
-     * Providers.
-     * Each available post-processor is only run if it is applicable for the given
-     * technology-agnostic deployment model
-     * If no post-processor is applicable or the post-processor fails, the technology-agnostic
-     * deployment model remains unchanged.
-     *
-     * @param tadm the technology-agnostic deployment model to post-process
-     * @return the modified technology-agnostic deployment model or the original one of the
-     * processing failed
-     */
-    private TechnologyAgnosticDeploymentModel postProcessTADM(TechnologyAgnosticDeploymentModel tadm) {
-        if (azureRMPostProcessor.isPostProcessorApplicable(tadm)) {
-            try {
-                return azureRMPostProcessor.runPostProcessor(tadm);
-            } catch (PostProcessorFailedException e) {
-                return tadm;
-            }
-        }
-        return tadm;
-    }
-
 }
