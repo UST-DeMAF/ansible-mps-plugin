@@ -3,6 +3,7 @@ package ust.tad.ansiblempsplugin.analysis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
@@ -19,6 +20,7 @@ import ust.tad.ansiblempsplugin.models.tsdm.*;
 import ust.tad.ansiblempsplugin.ansiblemodel.*;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -44,6 +46,8 @@ public class AnalysisService {
     private TechnologyAgnosticDeploymentModel tadm;
     private Set<Integer> newEmbeddedDeploymentModelIndexes = new HashSet<>();
     private final Set<Play> plays = new HashSet<>();
+    @Autowired
+    private TaskExecutionAutoConfiguration taskExecutionAutoConfiguration;
 
     /**
      * Start the analysis of the deployment model.
@@ -317,10 +321,53 @@ public class AnalysisService {
         if (mainRoleYaml == null) {
             return new HashSet<>();
         }
-
-        // TODO read roles files based on role name with new BufferedReader
+        ArrayList<Map<String, Object>> roleList = (ArrayList<Map<String, Object>>) mainRoleYaml;
+        final List<String> possibleDirectories = List.of("defaults", "vars", "meta", "tasks", "handlers");
 
         HashSet<Role> roles = new HashSet<>();
+        roleList.forEach(role -> {
+
+            String roleName = (String) role.get("role");
+
+            ArrayList<String> directoryPaths = new ArrayList<>();
+            possibleDirectories.forEach(directory -> directoryPaths.add(removeAfterLastSlash(url.toString()) + "/roles/" + roleName + "/" + directory + "/main.yaml"));
+
+
+            HashSet<Variable> defaults = new HashSet<>();
+            HashSet<Variable> vars = new HashSet<>();
+            HashSet<Variable> meta = new HashSet<>();
+            HashSet<Task> tasks = new HashSet<>();
+            HashSet<Task> handlers = new HashSet<>();
+
+            directoryPaths.forEach(directory -> {
+                Object parsedYaml;
+                try {
+                    URL newUrl = new URL(directory);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(newUrl.openStream()));
+                    Yaml yaml = new Yaml();
+                    parsedYaml = yaml.load(reader);
+                    reader.close();
+
+                    // TODO think about how to do variable replacements
+                    if (directory.contains("tasks")) {
+                        tasks.addAll(parseTasks(parsedYaml));
+                    } else if (directory.contains("handlers")) {
+                        handlers.addAll(parseTasks(parsedYaml));
+                    } else if (directory.contains("defaults") ) {
+                        defaults.addAll(parseVars(parsedYaml));
+                    } else if(directory.contains("vars")) {
+                        vars.addAll(parseVars(parsedYaml));
+                    } else if(directory.contains("meta")) {
+                        // TODO finalize parsing of dependencies
+                    }
+                } catch (Exception e) {
+                    LOG.debug("Could not parse role file {}, might not exist.", directory);
+                }
+            });
+            roles.add(new Role(roleName, tasks, handlers, vars, defaults, meta, new HashSet<>()));
+        });
+
+
         return roles;
     }
 

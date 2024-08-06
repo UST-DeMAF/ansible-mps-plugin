@@ -7,9 +7,10 @@ public class Role {
 
     public Role() {}
 
-    public Role(String name, HashSet<Task> tasks, HashSet<Variable> vars, HashSet<Variable> defaults, HashSet<Variable> meta, HashSet<File> file) {
+    public Role(String name, HashSet<Task> tasks, HashSet<Task> handlers, HashSet<Variable> vars, HashSet<Variable> defaults, HashSet<Variable> meta, HashSet<File> file) {
         this.name = name;
         this.tasks = tasks;
+        this.handlers = handlers;
         this.vars = vars;
         this.defaults = defaults;
         this.meta = meta;
@@ -19,6 +20,8 @@ public class Role {
     private String name;
 
     private HashSet<Task> tasks;
+
+    private HashSet<Task> handlers;
 
     private HashSet<Variable> vars;
 
@@ -42,6 +45,14 @@ public class Role {
 
     public void setTasks(HashSet<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public HashSet<Task> getHandlers() {
+        return handlers;
+    }
+
+    public void setHandlers(HashSet<Task> handlers) {
+        this.handlers = handlers;
     }
 
     public HashSet<Variable> getVars() {
@@ -74,30 +85,5 @@ public class Role {
 
     public void setFile(HashSet<File> file) {
         this.file = file;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Role)) return false;
-        Role role = (Role) o;
-        return Objects.equals(name, role.name) && Objects.equals(tasks, role.tasks) && Objects.equals(vars, role.vars) && Objects.equals(defaults, role.defaults) && Objects.equals(meta, role.meta) && Objects.equals(file, role.file);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, tasks, vars, defaults, meta, file);
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "name='" + name + '\'' +
-                ", tasks=" + tasks +
-                ", vars=" + vars +
-                ", defaults=" + defaults +
-                ", meta=" + meta +
-                ", file=" + file +
-                '}';
     }
 }
