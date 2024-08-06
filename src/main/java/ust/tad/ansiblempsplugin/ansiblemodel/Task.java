@@ -5,11 +5,11 @@ import java.util.HashSet;
 public class Task {
 
     private String name;
-    private HashSet<String> vars; // Assuming vars should be a set of Strings
+    private HashSet<Variable> vars; // Assuming vars should be a set of Strings
     private Boolean become;
     private Module action;
 
-    public Task(String name, HashSet<String> vars, Boolean become, Module action) {
+    public Task(String name, HashSet<Variable> vars, Boolean become, Module action) {
         this.name = name;
         this.vars = vars;
         this.become = become;
@@ -25,11 +25,11 @@ public class Task {
         this.name = name;
     }
 
-    public HashSet<String> getVars() {
+    public HashSet<Variable> getVars() {
         return vars;
     }
 
-    public void setVars(HashSet<String> vars) {
+    public void setVars(HashSet<Variable> vars) {
         this.vars = vars;
     }
 

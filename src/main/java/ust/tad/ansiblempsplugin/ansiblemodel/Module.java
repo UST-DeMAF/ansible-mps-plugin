@@ -1,8 +1,8 @@
 package ust.tad.ansiblempsplugin.ansiblemodel;
 
-import java.util.HashSet;
+public class Module {
 
-public interface Module {
-    String getName();
-    HashSet<String> getVars();
+    public Module() {}
+    public Module(String name) {
+    }
 }
