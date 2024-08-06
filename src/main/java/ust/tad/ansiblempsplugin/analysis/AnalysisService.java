@@ -1,8 +1,11 @@
 package ust.tad.ansiblempsplugin.analysis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.yaml.snakeyaml.Yaml;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
 import ust.tad.ansiblempsplugin.analysistask.Location;
 import ust.tad.ansiblempsplugin.models.ModelsService;
@@ -12,18 +15,13 @@ import ust.tad.ansiblempsplugin.models.tadm.TechnologyAgnosticDeploymentModel;
 import ust.tad.ansiblempsplugin.models.tsdm.*;
 import ust.tad.ansiblempsplugin.ansiblemodel.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
-public class AnalysisService {
+public class AnalysisService<T> {
 
     private static final List<String> supportedModules = List.of("docker_container");
     @Autowired
@@ -32,6 +30,9 @@ public class AnalysisService {
     AnalysisTaskResponseSender analysisTaskResponseSender;
     @Autowired
     private TransformationService transformationService;
+
+    private static final Logger LOG =
+            LoggerFactory.getLogger(AnalysisTaskResponseSender.class);
 
     private static final Set<String> supportedFileExtensions = Set.of("yaml", "yml");
     private TechnologySpecificDeploymentModel tsdm;
@@ -55,15 +56,15 @@ public class AnalysisService {
      */
     public void startAnalysis(UUID taskId, UUID transformationProcessId, List<String> commands,
                               List<Location> locations) {
-        TechnologySpecificDeploymentModel completeTsdm =
-                modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
-        this.tsdm = getExistingTsdm(completeTsdm, locations);
-        if (tsdm == null) {
-            analysisTaskResponseSender.sendFailureResponse(taskId, "No technology-specific " +
-                    "deployment model found!");
-            return;
-        }
-        this.tadm = modelsService.getTechnologyAgnosticDeploymentModel(transformationProcessId);
+        //TechnologySpecificDeploymentModel completeTsdm =
+        //            modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
+        //  this.tsdm = getExistingTsdm(completeTsdm, locations);
+        //if (tsdm == null) {
+        //   analysisTaskResponseSender.sendFailureResponse(taskId, "No technology-specific " +
+        //          "deployment model found!");
+        // return;
+        // }
+        //this.tadm = modelsService.getTechnologyAgnosticDeploymentModel(transformationProcessId);
 
         try {
             runAnalysis(locations);
@@ -154,6 +155,7 @@ public class AnalysisService {
             Play parsed;
             if (supportedFileExtensions.contains(fileExtension)) {
                 parseFile(locationURL);
+                // TODO remove this debug statement
                 System.out.println(plays);
             }
             /*}*/
@@ -167,89 +169,162 @@ public class AnalysisService {
         DeploymentModelContent deploymentModelContent = new DeploymentModelContent();
         deploymentModelContent.setLocation(url);
 
-        List<Line> lines = new ArrayList<>();
+        // Parse main.yaml
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        boolean openPlayComponent = false;
+        Yaml yaml = new Yaml();
+        ArrayList<Map<String, T>> parsedYaml = yaml.load(reader);
+        reader.close();
 
-        HashSet<Host> hosts = new HashSet<Host>();
-        boolean become = false;
-        String name = "";
-        HashSet<Task> preTasks = new HashSet<Task>();
-        HashSet<Role> roles = new HashSet<Role>();
-        HashSet<Task> postTasks = new HashSet<Task>();
-        HashSet<Task> tasks = new HashSet<Task>();
-        HashSet<Variable> vars = new HashSet<Variable>();
+        // Extract information from parsed yaml construct
+        parsedYaml.forEach((playYaml) -> {
+            HashSet<Host> hosts = new HashSet<>();
+            boolean become = false;
+            String name = "";
+            HashSet<Task> preTasks = new HashSet<>();
+            HashSet<Role> roles = new HashSet<>();
+            HashSet<Task> postTasks = new HashSet<>();
+            HashSet<Task> tasks = new HashSet<>();
+            HashSet<Variable> vars = new HashSet<>();
 
-        //First Play Object
-        while (reader.lines() != null && reader.ready()) {
-            String line = reader.readLine();
-            if (line.trim().startsWith("hosts")) {
-                hosts = parseHosts(reader, line, url);
-            } else if (line.trim().startsWith("become")) {
-                become = Boolean.parseBoolean(line.split(":")[1].trim());
-            } else if (line.trim().startsWith("pre_tasks")) {
-                preTasks = parseTasks(reader, line);
-            } else if (line.trim().startsWith("roles")) {
-                roles = parseRoles(reader, line, url);
-            } else if (line.trim().startsWith("post_tasks")) {
-                postTasks = parseTasks(reader, line);
-            } else if (line.trim().startsWith("tasks")) {
-                tasks = parseTasks(reader, line);
-            } else if (line.trim().startsWith("vars")) {
-                vars = parseVars(reader, line);
-            } else if (line.startsWith("- name:")) { // No trim here, because we only want to find play names
-                if (openPlayComponent) {
-                    Play play = new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
-                    //  abschließen und neues Play erzeugen
-                    plays.add(play);
-                    clean(hosts, preTasks, tasks, postTasks, roles, vars, become);
-                    name = line.split(":")[1].trim();
-                } else {
-                    name = line.split(":")[1].trim();
-                    openPlayComponent = true;
+            if (playYaml.get("name") != null) {
+                name = playYaml.get("name").toString();
+            }
+            if (playYaml.get("vars") != null) {
+                vars.addAll(parseVars(playYaml.get("vars")));
+            }
+            if (playYaml.get("hosts") != null) {
+                try {
+                    hosts.addAll(parseHosts(url, playYaml.get("hosts")));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+            }
+            if (playYaml.get("become") != null) {
+                become = Boolean.parseBoolean(playYaml.get("become").toString());
+            }
+            if (playYaml.get("pre_tasks") != null) {
+                preTasks.addAll(parseTasks(playYaml.get("pre_tasks")));
+            }
+            if (playYaml.get("tasks") != null) {
+                tasks.addAll(parseTasks(playYaml.get("tasks")));
+            }
+            if (playYaml.get("post_tasks") != null) {
+                postTasks.addAll(parseTasks(playYaml.get("post_tasks")));
+            }
+            if (playYaml.get("roles") != null) {
+                try {
+                    roles.addAll(parseRoles(url, playYaml.get("roles"), vars));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            plays.add(new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become));
+        });
+    }
+
+    private HashSet<Host> parseHosts(URL url, T mainHostYaml) throws IOException {
+        String directoryPath = removeAfterLastSlash(url.toString());
+        URL hostUrl1 = new URL(directoryPath + "/hosts.yaml");
+        URL hostUrl2 = new URL(directoryPath + "/hosts.yml");
+
+        HashSet<Host> hosts;
+        try {
+            hosts = parseHostYaml(hostUrl1);
+        } catch (Exception e) {
+            try {
+                hosts = parseHostYaml(hostUrl2);
+            } catch (Exception e2) {
+                LOG.error("Could not parse hosts.yaml/yml: {}, {}", e.getMessage(), e2.getMessage());
+                return new HashSet<>();
             }
         }
 
-        // letztes Play hinzufügen
-        Play play = new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
-        //  abschließen und neues Play erzeugen
-        plays.add(play);
+        // The hosts.yaml can contain more hosts than targeted in this deployment, thus we need to filter them out.
+        // In the global main.yaml hots can be defined as hostGroup (one or many) or as specific host (one or many)
 
+        // Either there is one host-group or all or host provided...
+        try {
+            String mainHostString = (String) mainHostYaml;
+            if (mainHostString.equals("all")) {
+                return hosts;
+            } else if (hosts.stream().anyMatch(host -> host.getHostName().equals(mainHostString))) {
+                hosts.removeIf(host -> !host.getHostName().equals(mainHostString));
+                // as this is a set we assume there is only one host with this name.
+                return hosts;
+            } else if(hosts.stream().anyMatch(host -> host.getGroup().equals(mainHostString))) {
+                hosts.removeIf(host -> !host.getGroup().equals(mainHostString));
+                return hosts;
+            } else {
+                return hosts;
+            }
+        } catch (ClassCastException stringError) {
+            LOG.debug("mainHostYaml is not a string");
+        }
 
-        reader.close();
+        // Or there is a list of host-groups or hosts provided.
+        try {
+            HashSet<Host> hostIterator = hosts;
+            HashSet<Host> returnHosts = new HashSet<>();
+            ArrayList<String> mainHostList = (ArrayList<String>) mainHostYaml;
 
-        if (!lines.isEmpty()) {
-            deploymentModelContent.setLines(lines);
-            this.tsdm.addDeploymentModelContent(deploymentModelContent);
+            mainHostList.forEach((name -> {
+                hostIterator.forEach((host -> {
+                    if (host.getHostName().equals(name) || host.getGroup().equals(name)) {
+                        returnHosts.add(host);
+                    }
+                }));
+            }));
+            if (!returnHosts.isEmpty()) {
+                return returnHosts;
+            } else {
+                return hosts;
+            }
+
+        } catch (ClassCastException ListError) {
+            LOG.error("Could not parse main host information, gonna add all hosts from host.yaml");
+            return hosts;
         }
     }
 
-    private void clean(HashSet<Host> hosts, HashSet<Task> preTasks, HashSet<Task> tasks, HashSet<Task> postTasks, HashSet<Role> roles, HashSet<Variable> vars, boolean become) {
-        hosts.clear();
-        preTasks.clear();
-        tasks.clear();
-        postTasks.clear();
-        roles.clear();
-        vars.clear();
-    }
-
-    private HashSet<Host> parseHosts(BufferedReader reader, String line, URL url) {
-
-        // TODO read file hosts.yml / hosts.yaml in same directory with new BufferedReader
+    private static HashSet<Host> parseHostYaml(URL hostUrl) throws IOException {
+        BufferedReader hostReader = new BufferedReader(new InputStreamReader(hostUrl.openStream()));
+        Yaml yaml = new Yaml();
+        Map<String, Map<String, Map<String, Map<String, String>>>> parsedYaml = yaml.load(hostReader);
+        hostReader.close();
 
         HashSet<Host> hosts = new HashSet<>();
+        parsedYaml.forEach((group, hostsWrapper) -> {
+            hostsWrapper.get("hosts").forEach((hostName, varMap) -> {
+                HashSet<Variable> vars = new HashSet<>();
+                varMap.forEach((varKey, varValue) -> {
+                    vars.add(new Variable(varKey, varValue));
+                });
+                hosts.add(new Host(hostName, vars, group));
+            });
+        });
         return hosts;
     }
 
-    private HashSet<Task> parseTasks(BufferedReader reader, String line) {
+
+    private static String removeAfterLastSlash(String input) {
+        int lastSlashIndex = input.lastIndexOf('/');
+        if (lastSlashIndex != -1) {
+            return input.substring(0, lastSlashIndex);
+        } else {
+            return input;  // No slash found, return the original string
+        }
+    }
+
+
+    private HashSet<Task> parseTasks(T mainTaskYaml) {
 
         HashSet<Task> tasks = new HashSet<>();
 
         return tasks;
     }
 
-    private HashSet<Role> parseRoles(BufferedReader reader, String line, URL url) {
+    private HashSet<Role> parseRoles(URL url, T mainRoleYaml, HashSet<Variable> globalVars) throws IOException {
 
         // TODO read roles files based on role name with new BufferedReader
 
@@ -257,7 +332,7 @@ public class AnalysisService {
         return roles;
     }
 
-    private HashSet<Variable> parseVars(BufferedReader reader, String line) {
+    private HashSet<Variable> parseVars(T mainVarsYaml) {
 
         HashSet<Variable> vars = new HashSet<>();
         return vars;
