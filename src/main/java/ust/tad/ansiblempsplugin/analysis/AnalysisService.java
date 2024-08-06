@@ -252,7 +252,7 @@ public class AnalysisService<T> {
                 hosts.removeIf(host -> !host.getHostName().equals(mainHostString));
                 // as this is a set we assume there is only one host with this name.
                 return hosts;
-            } else if(hosts.stream().anyMatch(host -> host.getGroup().equals(mainHostString))) {
+            } else if (hosts.stream().anyMatch(host -> host.getGroup().equals(mainHostString))) {
                 hosts.removeIf(host -> !host.getGroup().equals(mainHostString));
                 return hosts;
             } else {
@@ -334,7 +334,17 @@ public class AnalysisService<T> {
 
     private HashSet<Variable> parseVars(T mainVarsYaml) {
 
+        Map<String, String> mainVarsList;
+        try {
+            mainVarsList = (Map<String, String>) mainVarsYaml;
+        } catch (Exception e) {
+            LOG.error("could not parse global variables {}", e.getMessage());
+            return new HashSet<>();
+        }
         HashSet<Variable> vars = new HashSet<>();
+        mainVarsList.forEach((key, value) -> {
+            vars.add(new Variable(key, value));
+        });
         return vars;
     }
 }
