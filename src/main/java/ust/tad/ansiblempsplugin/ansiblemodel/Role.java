@@ -7,13 +7,13 @@ public class Role {
 
     public Role() {}
 
-    public Role(String name, HashSet<Task> tasks, HashSet<Task> handlers, HashSet<Variable> vars, HashSet<Variable> defaults, HashSet<Variable> meta, HashSet<File> file) {
+    public Role(String name, HashSet<Task> tasks, HashSet<Task> handlers, HashSet<Variable> vars, HashSet<Variable> defaults, HashSet<String> dependencies, HashSet<File> file) {
         this.name = name;
         this.tasks = tasks;
         this.handlers = handlers;
         this.vars = vars;
         this.defaults = defaults;
-        this.meta = meta;
+        this.dependencies = dependencies;
         this.file = file;
     }
 
@@ -27,7 +27,7 @@ public class Role {
 
     private HashSet<Variable> defaults;
 
-    private HashSet<Variable> meta;
+    private HashSet<String> dependencies;
 
     private HashSet<File> file;
 
@@ -71,12 +71,12 @@ public class Role {
         this.defaults = defaults;
     }
 
-    public HashSet<Variable> getMeta() {
-        return meta;
+    public HashSet<String> getDependencies() {
+        return dependencies;
     }
 
-    public void setMeta(HashSet<Variable> meta) {
-        this.meta = meta;
+    public void setDependencies(HashSet<String> dependencies) {
+        this.dependencies = dependencies;
     }
 
     public HashSet<File> getFile() {

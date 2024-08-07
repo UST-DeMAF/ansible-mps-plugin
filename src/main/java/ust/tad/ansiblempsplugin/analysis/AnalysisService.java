@@ -10,8 +10,6 @@ import org.yaml.snakeyaml.Yaml;
 import ust.tad.ansiblempsplugin.analysis.ansibleactions.ActionParser;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
 import ust.tad.ansiblempsplugin.analysistask.Location;
-import ust.tad.ansiblempsplugin.ansiblemodel.Module;
-import ust.tad.ansiblempsplugin.ansiblemodel.actions.*;
 import ust.tad.ansiblempsplugin.models.ModelsService;
 import ust.tad.ansiblempsplugin.models.tadm.InvalidPropertyValueException;
 import ust.tad.ansiblempsplugin.models.tadm.InvalidRelationException;
@@ -20,15 +18,16 @@ import ust.tad.ansiblempsplugin.models.tsdm.*;
 import ust.tad.ansiblempsplugin.ansiblemodel.*;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@SuppressWarnings({"unchecked"})
 @Service
 public class AnalysisService {
 
-    private static final List<String> supportedModules = List.of("docker_container");
+    private static final List<String> supportedModules = List.of("docker_container", "docker_images", "docker_network", "apt", "community.general.launchd");
     @Autowired
     ModelsService modelsService;
     @Autowired
@@ -100,7 +99,7 @@ public class AnalysisService {
     private TechnologySpecificDeploymentModel getExistingTsdm(TechnologySpecificDeploymentModel tsdm, List<Location> locations) {
         for (DeploymentModelContent content : tsdm.getContent()) {
             for (Location location : locations) {
-                if (location.getUrl().equals(content.getLocation())) {
+                if (location.getUrl() == content.getLocation()) {
                     return tsdm;
                 }
             }
@@ -163,14 +162,11 @@ public class AnalysisService {
             String fileExtension = StringUtils.getFilenameExtension(locationURLString);
             if (supportedFileExtensions.contains(fileExtension)) {
                 parseFile(locationURL);
-                // TODO remove this debug statement
-                System.out.println(plays);
             }
             /*}*/
         }
 
-        this.tadm = transformationService.transformInternalToTADM(this.tadm,
-                new AnsibleDeploymentModel(this.plays));
+        this.tadm = transformationService.transformInternalToTADM(this.tadm, new AnsibleDeploymentModel(this.plays));
     }
 
     private void parseFile(URL url) throws IOException {
@@ -305,14 +301,13 @@ public class AnalysisService {
             return new HashSet<>();
         }
         HashSet<Task> tasks = new HashSet<>();
-        mainTasksList.forEach(taskYaml -> {
-            tasks.add(new Task(
-                    taskYaml.get("name").toString(),
-                    parseVars(taskYaml.get("vars")),
-                    Boolean.parseBoolean(taskYaml.getOrDefault("become", "false").toString()),
-                    actionParser.parseActions(taskYaml)
-            ));
-        });
+        mainTasksList.forEach(taskYaml -> tasks.add(new Task(
+                taskYaml.get("name").toString(),
+                parseVars(taskYaml.get("vars")),
+                Boolean.parseBoolean(taskYaml.getOrDefault("become", "false").toString()),
+                actionParser.parseActions(taskYaml),
+                new HashSet<>((ArrayList<String>) taskYaml.getOrDefault("loop", new ArrayList<String>()))
+        )));
         return tasks;
     }
 
@@ -335,7 +330,7 @@ public class AnalysisService {
 
             HashSet<Variable> defaults = new HashSet<>();
             HashSet<Variable> vars = new HashSet<>();
-            HashSet<Variable> meta = new HashSet<>();
+            HashSet<String> dependencies = new HashSet<>();
             HashSet<Task> tasks = new HashSet<>();
             HashSet<Task> handlers = new HashSet<>();
 
@@ -353,18 +348,26 @@ public class AnalysisService {
                         tasks.addAll(parseTasks(parsedYaml));
                     } else if (directory.contains("handlers")) {
                         handlers.addAll(parseTasks(parsedYaml));
-                    } else if (directory.contains("defaults") ) {
+                    } else if (directory.contains("defaults")) {
                         defaults.addAll(parseVars(parsedYaml));
-                    } else if(directory.contains("vars")) {
+                    } else if (directory.contains("vars")) {
                         vars.addAll(parseVars(parsedYaml));
-                    } else if(directory.contains("meta")) {
-                        // TODO finalize parsing of dependencies
+                    } else if (directory.contains("meta")) {
+                        Map<String, ArrayList<Map<String, String>>> mainMetaMap;
+                        try {
+                            mainMetaMap = (Map<String, ArrayList<Map<String, String>>>) parsedYaml;
+                            dependencies.addAll(mainMetaMap.get("dependencies").stream()
+                                    .flatMap(map -> map.values().stream())
+                                    .collect(Collectors.toCollection(ArrayList::new)));
+                        } catch (Exception e) {
+                            LOG.error("could not parse dependencies {}", e.getMessage());
+                        }
                     }
                 } catch (Exception e) {
                     LOG.debug("Could not parse role file {}, might not exist.", directory);
                 }
             });
-            roles.add(new Role(roleName, tasks, handlers, vars, defaults, meta, new HashSet<>()));
+            roles.add(new Role(roleName, tasks, handlers, vars, defaults, dependencies, new HashSet<>()));
         });
 
 

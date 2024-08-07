@@ -1,19 +1,20 @@
 package ust.tad.ansiblempsplugin.ansiblemodel;
-
 import java.util.HashSet;
 
 public class Task {
 
     private String name;
-    private HashSet<Variable> vars; // Assuming vars should be a set of Strings
+    private HashSet<Variable> vars;
     private Boolean become;
     private Module action;
+    private HashSet<String> loop;
 
-    public Task(String name, HashSet<Variable> vars, Boolean become, Module action) {
+    public Task(String name, HashSet<Variable> vars, Boolean become, Module action, HashSet<String> loop) {
         this.name = name;
         this.vars = vars;
         this.become = become;
         this.action = action;
+        this.loop = loop;
     }
 
     // Getters and Setters
@@ -48,4 +49,13 @@ public class Task {
     public void setAction(Module action) {
         this.action = action;
     }
+
+    public HashSet<String> getLoop() {
+        return loop;
+    }
+
+    public void setLoop(HashSet<String> loop) {
+        this.loop = loop;
+    }
+
 }
