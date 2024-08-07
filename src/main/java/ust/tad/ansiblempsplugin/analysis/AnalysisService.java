@@ -62,15 +62,15 @@ public class AnalysisService {
    */
   public void startAnalysis(
       UUID taskId, UUID transformationProcessId, List<String> commands, List<Location> locations) {
-    // TechnologySpecificDeploymentModel completeTsdm =
-    //            modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
-    //  this.tsdm = getExistingTsdm(completeTsdm, locations);
-    // if (tsdm == null) {
-    //   analysisTaskResponseSender.sendFailureResponse(taskId, "No technology-specific " +
-    //          "deployment model found!");
-    // return;
-    // }
-    // this.tadm = modelsService.getTechnologyAgnosticDeploymentModel(transformationProcessId);
+    TechnologySpecificDeploymentModel completeTsdm =
+        modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
+    this.tsdm = getExistingTsdm(completeTsdm, locations);
+    if (tsdm == null) {
+      analysisTaskResponseSender.sendFailureResponse(
+          taskId, "No technology-specific " + "deployment model found!");
+      return;
+    }
+    this.tadm = modelsService.getTechnologyAgnosticDeploymentModel(transformationProcessId);
 
     try {
       runAnalysis(locations);
@@ -511,7 +511,7 @@ public class AnalysisService {
           iterateStringFields(value, vars, defaults, globalVars);
         }
       } catch (Exception e) {
-        LOG.error("Failed to replace Variable for field {}{}", field.getName(), e.getMessage());
+        LOG.debug("Failed to replace Variable for field {}{}", field.getName(), e.getMessage());
       }
     }
   }
