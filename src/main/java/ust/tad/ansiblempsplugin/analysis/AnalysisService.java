@@ -28,13 +28,6 @@ import ust.tad.ansiblempsplugin.models.tsdm.*;
 @Service
 public class AnalysisService {
 
-  private static final List<String> supportedModules =
-      List.of(
-          "docker_container",
-          "docker_images",
-          "docker_network",
-          "apt",
-          "community.general.launchd");
   @Autowired ModelsService modelsService;
   @Autowired AnalysisTaskResponseSender analysisTaskResponseSender;
   @Autowired private TransformationService transformationService;
@@ -179,6 +172,11 @@ public class AnalysisService {
             this.tadm, new AnsibleDeploymentModel(this.plays));
   }
 
+  /**
+   * Reads in all plays in a main.yaml file and calls the subsequent parsing methods.
+   *
+   * @param url the url of the main.yaml
+   */
   private void parseFile(URL url) throws IOException {
     // DeploymentModelContent deploymentModelContent = new DeploymentModelContent();
     // deploymentModelContent.setLocation(url);
@@ -208,7 +206,7 @@ public class AnalysisService {
           HashSet<Task> tasks = new HashSet<>(parseTasks(playYaml.get("tasks")));
           HashSet<Task> postTasks = new HashSet<>(parseTasks(playYaml.get("post_tasks")));
           try {
-            roles = new HashSet<>(parseRoles(url, playYaml.get("roles"), vars));
+            roles = new HashSet<>(parseRoles(url, playYaml.get("roles")));
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
@@ -220,6 +218,14 @@ public class AnalysisService {
         });
   }
 
+  /**
+   * Reads in all used hosts and parses them accordingly.
+   *
+   * @param url the url of the main.yaml to find the hots file.
+   * @param mainHostYaml the main.yaml's snippet containing the YAML stating which hosts are used in
+   *     a play, parsed as LinkedHashMap
+   * @return the HashSet of parsed hosts
+   */
   private HashSet<Host> parseHosts(URL url, Object mainHostYaml) throws IOException {
 
     if (mainHostYaml == null) {
@@ -313,6 +319,12 @@ public class AnalysisService {
     return hosts;
   }
 
+  /**
+   * Reads in tasks and parses them accordingly.
+   *
+   * @param mainTaskYaml the snippet containing the YAML stating the tasks, parsed as LinkedHashMap
+   * @return the HashSet of parsed tasks
+   */
   private HashSet<Task> parseTasks(Object mainTaskYaml) {
 
     if (mainTaskYaml == null) {
@@ -341,8 +353,15 @@ public class AnalysisService {
     return tasks;
   }
 
-  private HashSet<Role> parseRoles(URL url, Object mainRoleYaml, HashSet<Variable> globalVars)
-      throws IOException {
+  /**
+   * Reads in all used roles and parses them accordingly.
+   *
+   * @param url the url of the main.yaml to find the roles directories.
+   * @param mainRoleYaml the main.yaml's snippet containing the YAML stating which roles are used in
+   *     a play, parsed as LinkedHashMap
+   * @return the HashSet of parsed roles
+   */
+  private HashSet<Role> parseRoles(URL url, Object mainRoleYaml) throws IOException {
 
     if (mainRoleYaml == null) {
       return new HashSet<>();
@@ -415,6 +434,12 @@ public class AnalysisService {
     return roles;
   }
 
+  /**
+   * Parses variables from the YAML.
+   *
+   * @param mainVarsYaml the Variable Snippet containing the YAML, parsed as LinkedHashMap
+   * @return the HashSet of parsed variables
+   */
   private HashSet<Variable> parseVars(Object mainVarsYaml) {
 
     if (mainVarsYaml == null) {
@@ -433,6 +458,12 @@ public class AnalysisService {
     return vars;
   }
 
+  /**
+   * String helper that cuts the filename after the last slash to return the directory.
+   *
+   * @param input the input file path
+   * @return the shortened directory path
+   */
   private static String removeAfterLastSlash(String input) {
     int lastSlashIndex = input.lastIndexOf('/');
     if (lastSlashIndex != -1) {
@@ -442,6 +473,20 @@ public class AnalysisService {
     }
   }
 
+  /**
+   * Static function that iterates through all tasks to resolve variables. Variables have the
+   * following precedence. A task can have vars which come before a play's vars. In a role a task
+   * can also have task vars but also role vars which both come before role defaults and finally
+   * play vars. In this order every String is checked via reflection in all tasks in the entire play
+   * object. If a String matches to a variable name, the variable name is replaced with the variable
+   * value. Variables in Ansible are annotated as {{ var }}. The helper function
+   * iterateStringFields() is called to iterate recursively over all objects and collections in a
+   * play. Note, that this might be error-prone in special cases, thus all exceptions are caught to
+   * be safe.
+   *
+   * @param play The play where all strings should be checked and replaced.
+   * @return The play with replaced variables
+   */
   private static Play resolveVariables(Play play) {
 
     for (Task task : play.getPreTasks()) {
@@ -470,6 +515,15 @@ public class AnalysisService {
 
   private static final Set<Object> visited = new HashSet<>();
 
+  /**
+   * The actual method that iterates recursively through an object to find all strings and check if
+   * a variable can be replaced.
+   *
+   * @param obj The object to check and modify (e.g. a task or a list of tasks)
+   * @param vars The highest precedence variables (e.g. from task, might be null)
+   * @param defaults The default vars of a role (might be null)
+   * @param globalVars The global vars from the play (might be null)
+   */
   public static void iterateStringFields(
       Object obj, Set<Variable> vars, Set<Variable> defaults, Set<Variable> globalVars) {
     if (obj == null || visited.contains(obj)) {
@@ -516,6 +570,17 @@ public class AnalysisService {
     }
   }
 
+  /**
+   * Helper function for iterating through collections. Either the collection is of string itself,
+   * then the strings are checked, or the collection contains other objects which themselves might
+   * contain strings, thus in this case iterateStringFields() is called again recursively.
+   *
+   * @param collection The collection to check.
+   * @param vars The highest precedence variables (e.g. from task, might be null)
+   * @param defaults The default vars of a role (might be null)
+   * @param globalVars The global vars from the play (might be null)
+   * @return The collection (possibly modified)
+   */
   private static Collection<?> processCollection(
       Collection<?> collection,
       Set<Variable> vars,
@@ -551,10 +616,19 @@ public class AnalysisService {
     return returnCollection;
   }
 
+  /**
+   * Helper function to actually check and replace a variable with its value if applicable.
+   *
+   * @param vars the variables used for replacement
+   * @param string the string that should possibly be replaced
+   * @param usedVars container to help the to terminate the recursion, contains vars that have been
+   *     checked already
+   * @return the possibly adjusted string
+   */
   private static String checkAndReplaceString(
-      Set<Variable> defaults, String string, Set<String> usedVars) {
-    if (defaults != null && !defaults.isEmpty()) {
-      for (Variable defaultVar : defaults) {
+      Set<Variable> vars, String string, Set<String> usedVars) {
+    if (vars != null && !vars.isEmpty()) {
+      for (Variable defaultVar : vars) {
         if (!usedVars.contains(defaultVar.getName()) && string.contains(defaultVar.getName())) {
           string = string.replace("{{ " + defaultVar.getName() + " }}", defaultVar.getValue());
         }
