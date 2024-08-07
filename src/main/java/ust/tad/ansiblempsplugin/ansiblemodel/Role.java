@@ -1,89 +1,95 @@
 package ust.tad.ansiblempsplugin.ansiblemodel;
 
 import java.util.HashSet;
-import java.util.Objects;
 
 public class Role {
 
-    public Role() {}
+  public Role() {}
 
-    public Role(String name, HashSet<Task> tasks, HashSet<Task> handlers, HashSet<Variable> vars, HashSet<Variable> defaults, HashSet<String> dependencies, HashSet<File> file) {
-        this.name = name;
-        this.tasks = tasks;
-        this.handlers = handlers;
-        this.vars = vars;
-        this.defaults = defaults;
-        this.dependencies = dependencies;
-        this.file = file;
-    }
+  public Role(
+      String name,
+      HashSet<Task> tasks,
+      HashSet<Task> handlers,
+      HashSet<Variable> vars,
+      HashSet<Variable> defaults,
+      HashSet<String> dependencies,
+      HashSet<File> file) {
+    this.name = name;
+    this.tasks = tasks;
+    this.handlers = handlers;
+    this.vars = vars;
+    this.defaults = defaults;
+    this.dependencies = dependencies;
+    this.file = file;
+  }
 
-    private String name;
+  private String name;
 
-    private HashSet<Task> tasks;
+  private HashSet<Task> tasks;
 
-    private HashSet<Task> handlers;
+  private HashSet<Task> handlers;
 
-    private HashSet<Variable> vars;
+  private HashSet<Variable> vars;
 
-    private HashSet<Variable> defaults;
+  private HashSet<Variable> defaults;
 
-    private HashSet<String> dependencies;
+  private HashSet<String> dependencies;
 
-    private HashSet<File> file;
+  private HashSet<File> file;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public HashSet<Task> getTasks() {
-        return tasks;
-    }
+  public HashSet<Task> getTasks() {
+    return tasks;
+  }
 
-    public void setTasks(HashSet<Task> tasks) {
-        this.tasks = tasks;
-    }
+  public void setTasks(HashSet<Task> tasks) {
+    this.tasks = tasks;
+  }
 
-    public HashSet<Task> getHandlers() {
-        return handlers;
-    }
+  public HashSet<Task> getHandlers() {
+    return handlers;
+  }
 
-    public void setHandlers(HashSet<Task> handlers) {
-        this.handlers = handlers;
-    }
+  public void setHandlers(HashSet<Task> handlers) {
+    this.handlers = handlers;
+  }
 
-    public HashSet<Variable> getVars() {
-        return vars;
-    }
+  public HashSet<Variable> getVars() {
+    return vars;
+  }
 
-    public void setVars(HashSet<Variable> vars) {
-        this.vars = vars;
-    }
+  public void setVars(HashSet<Variable> vars) {
+    this.vars = vars;
+  }
 
-    public HashSet<Variable> getDefaults() {
-        return defaults;
-    }
+  public HashSet<Variable> getDefaults() {
+    return defaults;
+  }
 
-    public void setDefaults(HashSet<Variable> defaults) {
-        this.defaults = defaults;
-    }
+  public void setDefaults(HashSet<Variable> defaults) {
+    this.defaults = defaults;
+  }
 
-    public HashSet<String> getDependencies() {
-        return dependencies;
-    }
+  public HashSet<String> getDependencies() {
+    return dependencies;
+  }
 
-    public void setDependencies(HashSet<String> dependencies) {
-        this.dependencies = dependencies;
-    }
+  public void setDependencies(HashSet<String> dependencies) {
+    this.dependencies = dependencies;
+  }
 
-    public HashSet<File> getFile() {
-        return file;
-    }
+  public HashSet<File> getFile() {
+    return file;
+  }
 
-    public void setFile(HashSet<File> file) {
-        this.file = file;
-    }
+  public void setFile(HashSet<File> file) {
+    this.file = file;
+  }
 }

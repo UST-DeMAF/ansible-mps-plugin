@@ -1,48 +1,47 @@
 package ust.tad.ansiblempsplugin.ansiblemodel.actions;
 
+import java.util.HashSet;
 import ust.tad.ansiblempsplugin.ansiblemodel.Module;
 
-import java.util.HashSet;
-
 public class Apt extends Module {
-    private String name;
-    private String state;
-    private HashSet<String> pkg;
+  private String name;
+  private String state;
+  private HashSet<String> pkg;
 
-    public Apt() {
-    }
+  public Apt() {}
 
-    public Apt(String name, String state, HashSet<String> pkg) {
-        this.name = name;
-        this.state = state;
-        this.pkg = pkg;
-    }
-    public Apt(String name, String state) {
-        this.name = name;
-        this.state = state;
-    }
+  public Apt(String name, String state, HashSet<String> pkg) {
+    this.name = name;
+    this.state = state;
+    this.pkg = pkg;
+  }
 
-    public HashSet<String> getPkg() {
-        return pkg;
-    }
+  public Apt(String name, String state) {
+    this.name = name;
+    this.state = state;
+  }
 
-    public void setPkg(HashSet<String> pkg) {
-        this.pkg = pkg;
-    }
+  public HashSet<String> getPkg() {
+    return pkg;
+  }
 
-    public String getState() {
-        return state;
-    }
+  public void setPkg(HashSet<String> pkg) {
+    this.pkg = pkg;
+  }
 
-    public void setState(String state) {
-        this.state = state;
-    }
+  public String getState() {
+    return state;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setState(String state) {
+    this.state = state;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
 }
