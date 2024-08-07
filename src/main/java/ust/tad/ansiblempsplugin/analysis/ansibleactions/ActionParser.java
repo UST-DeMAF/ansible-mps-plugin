@@ -48,10 +48,11 @@ public class ActionParser {
     }
 
     private Module parseLaunchD(Map<String, Object> taskYaml) {
-        Map<String, String> launchDYaml = (Map<String, String>) taskYaml.get("community.general.launchd");
+        Map<String, Object> launchDYaml = (Map<String, Object>) taskYaml.get("community.general.launchd");
         return new LaunchD(
-                launchDYaml.get("name"),
-                launchDYaml.get("state")
+                launchDYaml.get("name").toString(),
+                launchDYaml.getOrDefault("state", "").toString(),
+                (boolean) launchDYaml.getOrDefault("enabled", false)
         );
     }
 

@@ -18,10 +18,13 @@ import ust.tad.ansiblempsplugin.models.tsdm.*;
 import ust.tad.ansiblempsplugin.ansiblemodel.*;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"unchecked"})
 @Service
@@ -201,7 +204,11 @@ public class AnalysisService {
                 throw new RuntimeException(e);
             }
 
-            plays.add(new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become));
+            Play play = new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
+            Play variableResolvedPlay = resolveVariables(play);
+
+            plays.add(variableResolvedPlay);
+
         });
     }
 
@@ -343,7 +350,6 @@ public class AnalysisService {
                     parsedYaml = yaml.load(reader);
                     reader.close();
 
-                    // TODO think about how to do variable replacements
                     if (directory.contains("tasks")) {
                         tasks.addAll(parseTasks(parsedYaml));
                     } else if (directory.contains("handlers")) {
@@ -399,5 +405,121 @@ public class AnalysisService {
         } else {
             return input;  // No slash found, return the original string
         }
+    }
+
+    private static Play resolveVariables(Play play) {
+
+        for (Task task : play.getPreTasks()) {
+            iterateStringFields(task, task.getVars(), null, play.getVars());
+        }
+        for (Task task : play.getTasks()) {
+            iterateStringFields(task, task.getVars(), null, play.getVars());
+        }
+        for (Task task : play.getPostTasks()) {
+            iterateStringFields(task, task.getVars(), null, play.getVars());
+        }
+
+        for (Role role : play.getRoles()) {
+            for (Task task : role.getTasks()) {
+                iterateStringFields(task, Stream.of(task.getVars(), role.getVars()).flatMap(Collection::stream).collect(Collectors.toSet()), role.getDefaults(), play.getVars());
+            }
+        }
+        return play;
+    }
+
+    private final static Set<Object> visited = new HashSet<>();
+
+    public static void iterateStringFields(Object obj, Set<Variable> vars, Set<Variable> defaults, Set<Variable> globalVars) {
+        if (obj == null || visited.contains(obj)) {
+            return;
+        }
+
+        // Add the object to the visited set to prevent infinite recursion
+        visited.add(obj);
+
+        // Get the class of the object
+        Class<?> clazz = obj.getClass();
+
+        // Get all declared fields of the class
+        Field[] fields = clazz.getDeclaredFields();
+
+        // Iterate over the fields
+        for (Field field : fields) {
+            // Make the field accessible if it's private
+            field.setAccessible(true);
+            try {
+                Object value = field.get(obj);
+
+                if (field.getType().equals(String.class)) {
+
+                    String string = (String) value;
+                    final Set<String> usedVars = new HashSet<>();
+
+                    string = checkAndReplaceString(vars, string, usedVars);
+                    string = checkAndReplaceString(defaults, string, usedVars);
+                    string = checkAndReplaceString(globalVars, string, usedVars);
+
+
+                    field.set(obj, string);
+
+
+                } else if (Collection.class.isAssignableFrom(field.getType())) {
+                    // Handle collections
+                    Collection<?> procecessedCollection = processCollection((Collection<?>) value, vars, defaults, globalVars);
+                    field.set(obj, procecessedCollection);
+                }  else if (!field.getType().isPrimitive() && value != null) {
+                    // Recursively inspect non-primitive fields that are not null
+                    iterateStringFields(value, vars, defaults, globalVars);
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InaccessibleObjectException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static Collection<?> processCollection(Collection<?> collection, Set<Variable> vars, Set<Variable> defaults, Set<Variable> globalVars) {
+        if (collection == null || visited.contains(collection)) {
+            return collection;
+        }
+
+        visited.add(collection);
+        Collection<Object> returnCollection = new HashSet<>();
+
+        for (Object element : collection) {
+            // Handle the case when the collection itself contains only Strings.
+            if (element instanceof String) {
+                String string = (String) element;
+                final Set<String> usedVars = new HashSet<>();
+
+                string = checkAndReplaceString(vars, string, usedVars);
+                string = checkAndReplaceString(defaults, string, usedVars);
+                string = checkAndReplaceString(globalVars, string, usedVars);
+
+                returnCollection.add(string);
+
+            } else if (element != null && !element.getClass().isPrimitive()) {
+                // Recursively inspect non-primitive elements that are not null
+                iterateStringFields(element, vars, defaults, globalVars);
+                returnCollection.add(element);
+            } else {
+                returnCollection.add(element);
+            }
+        }
+        return returnCollection;
+    }
+
+    private static String checkAndReplaceString(Set<Variable> defaults, String string, Set<String> usedVars) {
+        if (defaults != null && !defaults.isEmpty()) {
+            for (Variable defaultVar : defaults) {
+                if (!usedVars.contains(defaultVar.getName()) && string.contains(defaultVar.getName())) {
+                    string = string.replace("{{ " + defaultVar.getName() + " }}", defaultVar.getValue());
+                }
+            }
+        }
+        return string;
     }
 }

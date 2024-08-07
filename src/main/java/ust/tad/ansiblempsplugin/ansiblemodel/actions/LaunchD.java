@@ -5,11 +5,14 @@ import ust.tad.ansiblempsplugin.ansiblemodel.Module;
 public class LaunchD extends Module {
     private String name;
     private String state;
+    private boolean enabled;
 
-    public LaunchD(String name, String state) {
+    public LaunchD(String name, String state, boolean enabled) {
         this.name = name;
         this.state = state;
+        this.enabled = enabled;
     }
+
 
     public LaunchD() {
     }
@@ -28,5 +31,13 @@ public class LaunchD extends Module {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
