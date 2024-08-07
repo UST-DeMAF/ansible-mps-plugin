@@ -178,8 +178,8 @@ public class AnalysisService {
    * @param url the url of the main.yaml
    */
   private void parseFile(URL url) throws IOException {
-    // DeploymentModelContent deploymentModelContent = new DeploymentModelContent();
-    // deploymentModelContent.setLocation(url);
+    DeploymentModelContent deploymentModelContent = new DeploymentModelContent();
+    deploymentModelContent.setLocation(url);
 
     // Parse main.yaml
     BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
