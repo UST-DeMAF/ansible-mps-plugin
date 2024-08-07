@@ -7,6 +7,13 @@ public class LaunchD extends Module {
   private String state;
   private boolean enabled;
 
+  /**
+   * Constructs a LaunchD object with the specified name, state, and enabled status.
+   *
+   * @param name The name of the launchd.
+   * @param state The state of the launchd.
+   * @param enabled The enabled status of the launchd.
+   */
   public LaunchD(String name, String state, boolean enabled) {
     this.name = name;
     this.state = state;

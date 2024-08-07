@@ -19,6 +19,16 @@ public class EmbeddedDeploymentModelAnalysisRequest {
 
   public EmbeddedDeploymentModelAnalysisRequest() {}
 
+  /**
+   * Constructs an EmbeddedDeploymentModelAnalysisRequest object with the specified parent task ID,
+   * transformation process ID, technology, list of commands, and list of locations.
+   *
+   * @param parentTaskId The unique identifier of the parent task.
+   * @param transformationProcessId The unique identifier of the transformation process.
+   * @param technology The technology used in the deployment model.
+   * @param commands The list of commands to be executed.
+   * @param locations The list of locations to be analyzed.
+   */
   public EmbeddedDeploymentModelAnalysisRequest(
       UUID parentTaskId,
       UUID transformationProcessId,
@@ -72,32 +82,72 @@ public class EmbeddedDeploymentModelAnalysisRequest {
     this.locations = locations;
   }
 
+  /**
+   * Sets the parent task ID and returns the current EmbeddedDeploymentModelAnalysisRequest object.
+   *
+   * @param parentTaskId The unique identifier of the parent task.
+   * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
   public EmbeddedDeploymentModelAnalysisRequest parentTaskId(UUID parentTaskId) {
     setParentTaskId(parentTaskId);
     return this;
   }
 
+  /**
+   * Sets the transformation process ID and returns the current
+   * EmbeddedDeploymentModelAnalysisRequest object.
+   *
+   * @param transformationProcessId The unique identifier of the transformation process.
+   * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
   public EmbeddedDeploymentModelAnalysisRequest transformationProcessId(
       UUID transformationProcessId) {
     setTransformationProcessId(transformationProcessId);
     return this;
   }
 
+  /**
+   * Sets the technology and returns the current EmbeddedDeploymentModelAnalysisRequest object.
+   *
+   * @param technology The technology used in the deployment model.
+   * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
   public EmbeddedDeploymentModelAnalysisRequest technology(String technology) {
     setTechnology(technology);
     return this;
   }
 
+  /**
+   * Sets the list of commands and returns the current EmbeddedDeploymentModelAnalysisRequest
+   * object.
+   *
+   * @param commands The list of commands to be executed.
+   * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
   public EmbeddedDeploymentModelAnalysisRequest commands(List<String> commands) {
     setCommands(commands);
     return this;
   }
 
+  /**
+   * Sets the list of locations and returns the current EmbeddedDeploymentModelAnalysisRequest
+   * object.
+   *
+   * @param locations The list of locations to be analyzed.
+   * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
   public EmbeddedDeploymentModelAnalysisRequest locations(List<Location> locations) {
     setLocations(locations);
     return this;
   }
 
+  /**
+   * Adds a command to the list of commands and returns the current
+   * EmbeddedDeploymentModelAnalysisRequest object.
+   *
+   * @param command The command to be added.
+   * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
@@ -114,11 +164,21 @@ public class EmbeddedDeploymentModelAnalysisRequest {
         && Objects.equals(locations, embeddedDeploymentModelAnalysisRequest.locations);
   }
 
+  /**
+   * Returns the hash code of the EmbeddedDeploymentModelAnalysisRequest object.
+   *
+   * @return The hash code of the EmbeddedDeploymentModelAnalysisRequest object.
+   */
   @Override
   public int hashCode() {
     return Objects.hash(parentTaskId, transformationProcessId, technology, commands, locations);
   }
 
+  /**
+   * Returns a string representation of the EmbeddedDeploymentModelAnalysisRequest object.
+   *
+   * @return A string representation of the EmbeddedDeploymentModelAnalysisRequest object.
+   */
   @Override
   public String toString() {
     return "{"

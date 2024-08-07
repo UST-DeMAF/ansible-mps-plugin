@@ -90,6 +90,14 @@ public class AnalysisService {
     analysisTaskResponseSender.sendSuccessResponse(taskId);
   }
 
+  /**
+   * Get the existing technology-specific deployment model from the complete technology-specific
+   * deployment model.
+   *
+   * @param tsdm the complete technology-specific deployment model
+   * @param locations the list of locations
+   * @return the existing technology-specific deployment model
+   */
   private TechnologySpecificDeploymentModel getExistingTsdm(
       TechnologySpecificDeploymentModel tsdm, List<Location> locations) {
     for (DeploymentModelContent content : tsdm.getContent()) {
@@ -110,6 +118,13 @@ public class AnalysisService {
     return null;
   }
 
+  /**
+   * Update the deployment models with the new technology-specific deployment model and the new
+   * technology-agnostic deployment model.
+   *
+   * @param tsdm the technology-specific deployment model
+   * @param tadm the technology-agnostic deployment model
+   */
   private void updateDeploymentModels(
       TechnologySpecificDeploymentModel tsdm, TechnologyAgnosticDeploymentModel tadm) {
     modelsService.updateTechnologySpecificDeploymentModel(tsdm);
@@ -298,6 +313,12 @@ public class AnalysisService {
     }
   }
 
+  /**
+   * Reads in all hosts from the hosts.yaml file and parses them accordingly.
+   *
+   * @param hostUrl the URL of the hosts.yaml file
+   * @return the HashSet of parsed hosts
+   */
   private static HashSet<Host> parseHostYaml(URL hostUrl) throws IOException {
     BufferedReader hostReader = new BufferedReader(new InputStreamReader(hostUrl.openStream()));
     Yaml yaml = new Yaml();
@@ -516,6 +537,7 @@ public class AnalysisService {
     return play;
   }
 
+  // Set to prevent infinite recursion
   private static final Set<Object> visited = new HashSet<>();
 
   /**

@@ -10,6 +10,13 @@ public class PluginRegistrationResponse {
 
   public PluginRegistrationResponse() {}
 
+  /**
+   * Constructs a PluginRegistrationResponse object with the specified request queue name and
+   * response exchange name.
+   *
+   * @param requestQueueName The name of the request queue.
+   * @param responseExchangeName The name of the response exchange.
+   */
   public PluginRegistrationResponse(String requestQueueName, String responseExchangeName) {
     this.requestQueueName = requestQueueName;
     this.responseExchangeName = responseExchangeName;
@@ -41,6 +48,13 @@ public class PluginRegistrationResponse {
     return this;
   }
 
+  /**
+   * Compares this PluginRegistrationResponse object to the specified object.
+   *
+   * @param o The object to compare this PluginRegistrationResponse object against.
+   * @return {@code true} if the given object represents a PluginRegistrationResponse equivalent to
+   *     this PluginRegistrationResponse object, {@code false} otherwise.
+   */
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
@@ -52,11 +66,21 @@ public class PluginRegistrationResponse {
         && Objects.equals(responseExchangeName, pluginRegistrationResponse.responseExchangeName);
   }
 
+  /**
+   * Returns the hash code value for this PluginRegistrationResponse object.
+   *
+   * @return The hash code value for this PluginRegistrationResponse object.
+   */
   @Override
   public int hashCode() {
     return Objects.hash(requestQueueName, responseExchangeName);
   }
 
+  /**
+   * Returns a string representation of this PluginRegistrationResponse object.
+   *
+   * @return A string representation of this PluginRegistrationResponse object.
+   */
   @Override
   public String toString() {
     return "{"

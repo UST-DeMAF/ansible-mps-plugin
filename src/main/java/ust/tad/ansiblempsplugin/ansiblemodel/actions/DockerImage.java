@@ -9,6 +9,12 @@ public class DockerImage extends Module {
 
   public DockerImage() {}
 
+  /**
+   * Constructs a DockerImage object with the specified name and source.
+   *
+   * @param name The name of the image.
+   * @param source The source of the image.
+   */
   public DockerImage(String name, String source) {
     this.name = name;
     this.source = source;

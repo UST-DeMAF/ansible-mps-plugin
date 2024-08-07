@@ -46,6 +46,12 @@ public class PluginRegistrationRunner implements ApplicationRunner {
   @Value("${messaging.analysistask.response.exchange.name}")
   private String responseExchangeName;
 
+  /**
+   * Registers the plugin at the Analysis Manager and creates a listener for the request queue.
+   *
+   * @param args The application arguments.
+   * @throws JsonProcessingException If an error occurs during JSON processing.
+   */
   @Override
   public void run(ApplicationArguments args) throws JsonProcessingException {
 
@@ -78,6 +84,12 @@ public class PluginRegistrationRunner implements ApplicationRunner {
         () -> new FanoutExchange(response.getResponseExchangeName(), true, false));
   }
 
+  /**
+   * Creates the body for the plugin registration request.
+   *
+   * @return The body for the plugin registration request.
+   * @throws JsonProcessingException If an error occurs during JSON processing.
+   */
   private String createPluginRegistrationBody() throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode plugin = mapper.createObjectNode();
@@ -86,6 +98,13 @@ public class PluginRegistrationRunner implements ApplicationRunner {
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(plugin);
   }
 
+  /**
+   * Creates a listener for the specified request queue.
+   *
+   * @param requestQueueName The name of the request queue.
+   * @param messageListener The message listener.
+   * @return The listener for the request queue.
+   */
   private AbstractMessageListenerContainer createListenerForRequestQueue(
       String requestQueueName, MessageListener messageListener) {
     SimpleMessageListenerContainer listener =

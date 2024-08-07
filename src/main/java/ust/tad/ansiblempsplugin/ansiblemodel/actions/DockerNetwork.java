@@ -7,6 +7,12 @@ public class DockerNetwork extends Module {
   private String name;
   private String driver;
 
+  /**
+   * Constructs a DockerNetwork object with the specified name and driver.
+   *
+   * @param name The name of the network.
+   * @param driver The driver of the network.
+   */
   public DockerNetwork(String name, String driver) {
     this.name = name;
     this.driver = driver;

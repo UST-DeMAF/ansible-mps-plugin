@@ -7,6 +7,13 @@ public class Host {
   private HashSet<Variable> vars;
   private String group;
 
+  /**
+   * Constructs a Host object with the specified host name, variables, and group.
+   *
+   * @param hostName The name of the host.
+   * @param vars The variables of the host.
+   * @param group The group of the host.
+   */
   public Host(String hostName, HashSet<Variable> vars, String group) {
     this.hostName = hostName;
     this.vars = vars;

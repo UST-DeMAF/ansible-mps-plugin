@@ -21,6 +21,13 @@ public class Location {
 
   public Location() {}
 
+  /**
+   * Constructs a Location object with the specified URL, start line number, and end line number.
+   *
+   * @param url The URL of the location.
+   * @param startLineNumber The start line number.
+   * @param endLineNumber The end line number.
+   */
   public Location(URL url, int startLineNumber, int endLineNumber) {
     this.url = url;
     this.startLineNumber = startLineNumber;
@@ -55,21 +62,45 @@ public class Location {
     this.endLineNumber = endLineNumber;
   }
 
+  /**
+   * Sets the ID and returns the current Location object.
+   *
+   * @param id The unique identifier of the location.
+   * @return The current Location object.
+   */
   public Location url(URL url) {
     setUrl(url);
     return this;
   }
 
+  /**
+   * Sets the start line number and returns the current Location object.
+   *
+   * @param startLineNumber The start line number.
+   * @return The current Location object.
+   */
   public Location startLineNumber(int startLineNumber) {
     setStartLineNumber(startLineNumber);
     return this;
   }
 
+  /**
+   * Sets the end line number and returns the current Location object.
+   *
+   * @param endLineNumber The end line number.
+   * @return The current Location object.
+   */
   public Location endLineNumber(int endLineNumber) {
     setEndLineNumber(endLineNumber);
     return this;
   }
 
+  /**
+   * Sets the ID and returns the current Location object.
+   *
+   * @param id The unique identifier of the location.
+   * @return The current Location object.
+   */
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
@@ -83,11 +114,21 @@ public class Location {
         && endLineNumber == location.endLineNumber;
   }
 
+  /**
+   * Generates a hash code for this Location object.
+   *
+   * @return The hash code of this object.
+   */
   @Override
   public int hashCode() {
     return Objects.hash(id, url, startLineNumber, endLineNumber);
   }
 
+  /**
+   * Returns a string representation of this Location object.
+   *
+   * @return A string representation of this object.
+   */
   @Override
   public String toString() {
     return "{"

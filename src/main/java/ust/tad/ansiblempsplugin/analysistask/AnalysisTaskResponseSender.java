@@ -28,6 +28,11 @@ public class AnalysisTaskResponseSender {
   @Value("${messaging.analysistask.response.exchange.name}")
   private String responseExchangeName;
 
+  /**
+   * Sends a success response to the response exchange.
+   *
+   * @param taskId The unique identifier of the task.
+   */
   public void sendSuccessResponse(UUID taskId) {
     LOG.info("Transformation completed successfully, sending success response");
     ObjectMapper objectMapper = new ObjectMapper();
@@ -50,6 +55,12 @@ public class AnalysisTaskResponseSender {
     template.convertAndSend(responseExchangeName, "", message);
   }
 
+  /**
+   * Sends a failure response to the response exchange.
+   *
+   * @param taskId The unique identifier of the task.
+   * @param errorMessage The error message associated with the task.
+   */
   public void sendFailureResponse(UUID taskId, String errorMessage) {
     LOG.info("Sending failure response: " + errorMessage);
     ObjectMapper objectMapper = new ObjectMapper();
@@ -75,6 +86,11 @@ public class AnalysisTaskResponseSender {
     template.convertAndSend(responseExchangeName, "", message);
   }
 
+  /**
+   * Sends an EmbeddedDeploymentModelAnalysisRequest to the response exchange.
+   *
+   * @param request The request to be sent.
+   */
   public void sendEmbeddedDeploymentModelAnalysisRequest(
       EmbeddedDeploymentModelAnalysisRequest request) {
     LOG.info("Sending EmbeddedDeploymentModelAnalysisRequest: " + request.toString());
@@ -93,6 +109,12 @@ public class AnalysisTaskResponseSender {
     template.convertAndSend(responseExchangeName, "", message);
   }
 
+  /**
+   * Sends an EmbeddedDeploymentModelAnalysisRequest to the response exchange.
+   *
+   * @param embeddedDeploymentModel The embedded deployment model to be sent.
+   * @param parentTaskId The unique identifier of the parent task.
+   */
   public void sendEmbeddedDeploymentModelAnalysisRequestFromModel(
       TechnologySpecificDeploymentModel embeddedDeploymentModel, UUID parentTaskId) {
     EmbeddedDeploymentModelAnalysisRequest request = new EmbeddedDeploymentModelAnalysisRequest();

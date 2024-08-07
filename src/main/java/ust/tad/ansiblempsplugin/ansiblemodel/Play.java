@@ -23,6 +23,19 @@ public class Play {
 
   public Play() {}
 
+  /**
+   * Constructs a Play object with the specified name, hosts, pre-tasks, tasks, post-tasks, roles,
+   * variables, and become.
+   *
+   * @param name The name of the play.
+   * @param hosts The hosts of the play.
+   * @param preTasks The pre-tasks of the play.
+   * @param tasks The tasks of the play.
+   * @param postTasks The post-tasks of the play.
+   * @param roles The roles of the play.
+   * @param vars The variables of the play.
+   * @param become The become of the play.
+   */
   public Play(
       String name,
       HashSet<Host> hosts,
@@ -106,6 +119,13 @@ public class Play {
     this.become = become;
   }
 
+  /**
+   * Checks if the Play object is equal to the specified object.
+   *
+   * @param o The object to compare this Play object against.
+   * @return {@code true} if the specified object is equal to this Play object, {@code false}
+   *     otherwise.
+   */
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
@@ -123,11 +143,21 @@ public class Play {
         && Objects.equals(become, play.become);
   }
 
+  /**
+   * Returns the hash code value for this Play object.
+   *
+   * @return The hash code value for this Play object.
+   */
   @Override
   public int hashCode() {
     return Objects.hash(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
   }
 
+  /**
+   * Returns a string representation of this Play object.
+   *
+   * @return A string representation of this Play object.
+   */
   @Override
   public String toString() {
     return "{"

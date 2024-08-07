@@ -10,6 +10,11 @@ public class AnsibleDeploymentModel {
 
   public AnsibleDeploymentModel() {}
 
+  /**
+   * Constructs an AnsibleDeploymentModel object with the specified set of plays.
+   *
+   * @param plays The set of plays.
+   */
   public AnsibleDeploymentModel(Set<Play> plays) {
     this.plays = plays;
   }
@@ -22,6 +27,13 @@ public class AnsibleDeploymentModel {
     this.plays = plays;
   }
 
+  /**
+   * Checks if the AnsibleDeploymentModel object is equal to the specified object.
+   *
+   * @param o The object to compare this AnsibleDeploymentModel object against.
+   * @return {@code true} if the specified object is equal to this AnsibleDeploymentModel object,
+   *     {@code false} otherwise.
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -30,11 +42,21 @@ public class AnsibleDeploymentModel {
     return Objects.equals(plays, that.plays);
   }
 
+  /**
+   * Returns the hash code value for this AnsibleDeploymentModel object.
+   *
+   * @return The hash code value for this AnsibleDeploymentModel object.
+   */
   @Override
   public int hashCode() {
     return Objects.hash(plays);
   }
 
+  /**
+   * Returns a string representation of this AnsibleDeploymentModel object.
+   *
+   * @return A string representation of this AnsibleDeploymentModel object.
+   */
   @Override
   public String toString() {
     return "AnsibleDeploymentModel{" + "plays=" + plays + '}';

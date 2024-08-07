@@ -12,29 +12,42 @@ import ust.tad.ansiblempsplugin.ansiblemodel.actions.*;
 @SuppressWarnings("unchecked")
 @Service
 public class ActionParser {
+  /**
+   * Parses the actions of an ansible task.
+   *
+   * @param taskYaml The yaml representation of the task.
+   * @return The module that represents the task.
+   */
   public Module parseActions(Map<String, Object> taskYaml) {
 
-    if (taskYaml != null){
+    if (taskYaml != null) {
       return new Module("default-fallback");
     }
 
     // Here we have the ontological vendor-specific modules in ansible.
     // If the ansible play uses a specific task-type it must have a dedicated parsing here.
-    if (taskYaml.get("community.general.launchd") != null) {
-      return parseLaunchD(taskYaml);
-    } else if (taskYaml.get("docker_network") != null) {
-      return parseDockerNetwork(taskYaml);
-    } else if (taskYaml.get("docker_image") != null) {
-      return parseDockerImage(taskYaml);
-    } else if (taskYaml.get("docker_container") != null) {
-      return parseDockerContainer(taskYaml);
-    } else if (taskYaml.get("apt") != null) {
-      return parseApt(taskYaml);
-    } else {
-      return new Module("default-fallback");
+    switch (taskYaml.keySet().stream().findFirst().orElse("")) {
+      case "community.general.launchd":
+        return parseLaunchD(taskYaml);
+      case "docker_network":
+        return parseDockerNetwork(taskYaml);
+      case "docker_image":
+        return parseDockerImage(taskYaml);
+      case "docker_container":
+        return parseDockerContainer(taskYaml);
+      case "apt":
+        return parseApt(taskYaml);
+      default:
+        return new Module("default-fallback");
     }
   }
 
+  /**
+   * Parses the apt module.
+   *
+   * @param taskYaml The yaml representation of the task.
+   * @return The module that represents the task.
+   */
   private Module parseApt(Map<String, Object> taskYaml) {
     Map<String, Object> aptYaml = (Map<String, Object>) taskYaml.get("apt");
     if (aptYaml.get("pkg") != null) {
@@ -47,6 +60,12 @@ public class ActionParser {
     }
   }
 
+  /**
+   * Parses the launchd module.
+   *
+   * @param taskYaml The yaml representation of the task.
+   * @return The module that represents the task.
+   */
   private Module parseLaunchD(Map<String, Object> taskYaml) {
     Map<String, Object> launchDYaml =
         (Map<String, Object>) taskYaml.get("community.general.launchd");
@@ -56,16 +75,34 @@ public class ActionParser {
         (boolean) launchDYaml.getOrDefault("enabled", false));
   }
 
+  /**
+   * Parses the docker_network module.
+   *
+   * @param taskYaml The yaml representation of the task.
+   * @return The module that represents the task.
+   */
   private Module parseDockerNetwork(Map<String, Object> taskYaml) {
     Map<String, String> dockerNetworkYaml = (Map<String, String>) taskYaml.get("docker_network");
     return new DockerNetwork(dockerNetworkYaml.get("name"), dockerNetworkYaml.get("driver"));
   }
 
+  /**
+   * Parses the docker_image module.
+   *
+   * @param taskYaml The yaml representation of the task.
+   * @return The module that represents the task.
+   */
   private Module parseDockerImage(Map<String, Object> taskYaml) {
     Map<String, String> dockerImageYaml = (Map<String, String>) taskYaml.get("docker_image");
     return new DockerImage(dockerImageYaml.get("name"), dockerImageYaml.get("source"));
   }
 
+  /**
+   * Parses the docker_container module.
+   *
+   * @param taskYaml The yaml representation of the task.
+   * @return The module that represents the task.
+   */
   private DockerContainer parseDockerContainer(Map<String, Object> taskYaml) {
 
     Map<String, Object> dockerContainerYaml =

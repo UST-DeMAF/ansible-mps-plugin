@@ -10,6 +10,15 @@ public class Task {
   private Module action;
   private HashSet<String> loop;
 
+  /**
+   * Constructs a Task object with the specified name, variables, become, action, and loop.
+   *
+   * @param name The name of the task.
+   * @param vars The variables of the task.
+   * @param become The become of the task.
+   * @param action The action of the task.
+   * @param loop The loop of the task.
+   */
   public Task(
       String name, HashSet<Variable> vars, Boolean become, Module action, HashSet<String> loop) {
     this.name = name;

@@ -17,6 +17,21 @@ public class DockerContainer extends Module {
   private HashSet<Variable> networks;
   private HashSet<Variable> log_options;
 
+  /**
+   * Constructs a DockerContainer object with the specified container name, image, restart policy,
+   * memory, state, network mode, log driver, environment variables, networks, and log options.
+   *
+   * @param containerName The name of the container.
+   * @param image The image of the container.
+   * @param restartPolicy The restart policy of the container.
+   * @param memory The memory of the container.
+   * @param state The state of the container.
+   * @param network_mode The network mode of the container.
+   * @param log_driver The log driver of the container.
+   * @param env The environment variables of the container.
+   * @param networks The networks of the container.
+   * @param log_options The log options of the container.
+   */
   public DockerContainer(
       String containerName,
       String image,

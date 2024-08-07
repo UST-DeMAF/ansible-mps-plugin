@@ -6,6 +6,18 @@ public class Role {
 
   public Role() {}
 
+  /**
+   * Constructs a Role object with the specified name, tasks, handlers, variables, defaults,
+   * dependencies, and file.
+   *
+   * @param name The name of the role.
+   * @param tasks The tasks of the role.
+   * @param handlers The handlers of the role.
+   * @param vars The variables of the role.
+   * @param defaults The defaults of the role.
+   * @param dependencies The dependencies of the role.
+   * @param file The file of the role.
+   */
   public Role(
       String name,
       HashSet<Task> tasks,

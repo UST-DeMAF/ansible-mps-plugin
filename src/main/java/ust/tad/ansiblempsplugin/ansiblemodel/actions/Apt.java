@@ -10,12 +10,25 @@ public class Apt extends Module {
 
   public Apt() {}
 
+  /**
+   * Constructs an Apt object with the specified name, state, and package list.
+   *
+   * @param name The name of the package.
+   * @param state The state of the package.
+   * @param pkg The list of packages.
+   */
   public Apt(String name, String state, HashSet<String> pkg) {
     this.name = name;
     this.state = state;
     this.pkg = pkg;
   }
 
+  /**
+   * Constructs an Apt object with the specified name and state.
+   *
+   * @param name The name of the package.
+   * @param state The state of the package.
+   */
   public Apt(String name, String state) {
     this.name = name;
     this.state = state;
