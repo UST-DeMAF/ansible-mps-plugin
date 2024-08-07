@@ -13,6 +13,11 @@ import ust.tad.ansiblempsplugin.ansiblemodel.actions.*;
 @Service
 public class ActionParser {
   public Module parseActions(Map<String, Object> taskYaml) {
+
+    if (taskYaml != null){
+      return new Module("default-fallback");
+    }
+
     // Here we have the ontological vendor-specific modules in ansible.
     // If the ansible play uses a specific task-type it must have a dedicated parsing here.
     if (taskYaml.get("community.general.launchd") != null) {

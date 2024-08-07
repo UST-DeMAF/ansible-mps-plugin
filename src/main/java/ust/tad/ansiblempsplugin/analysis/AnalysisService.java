@@ -343,7 +343,7 @@ public class AnalysisService {
         taskYaml ->
             tasks.add(
                 new Task(
-                    taskYaml.get("name").toString(),
+                    taskYaml.getOrDefault("name", "").toString(),
                     parseVars(taskYaml.get("vars")),
                     Boolean.parseBoolean(taskYaml.getOrDefault("become", "false").toString()),
                     actionParser.parseActions(taskYaml),
