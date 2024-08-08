@@ -35,11 +35,6 @@ public class AnalysisTaskResponse {
     this.taskId = taskId;
   }
 
-  // TODO: check usage of this method
-  public boolean isSuccess() {
-    return this.success;
-  }
-
   public boolean getSuccess() {
     return this.success;
   }
@@ -130,7 +125,7 @@ public class AnalysisTaskResponse {
         + getTaskId()
         + "'"
         + ", success='"
-        + isSuccess()
+        + getSuccess()
         + "'"
         + ", errorMessage='"
         + getErrorMessage()
