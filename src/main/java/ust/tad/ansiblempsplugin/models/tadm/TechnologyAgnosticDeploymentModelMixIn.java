@@ -16,12 +16,12 @@ public abstract class TechnologyAgnosticDeploymentModelMixIn {
 
   private List<RelationType> relationTypes = new ArrayList<>();
 
-  @JsonProperty("component types")
+  @JsonProperty("component_types")
   public void setComponentTypes(List<ComponentType> componentTypes) {
     this.componentTypes = componentTypes;
   }
 
-  @JsonProperty("relation types")
+  @JsonProperty("relation_types")
   public void setRelationTypes(List<RelationType> relationTypes) {
     this.relationTypes = relationTypes;
   }
