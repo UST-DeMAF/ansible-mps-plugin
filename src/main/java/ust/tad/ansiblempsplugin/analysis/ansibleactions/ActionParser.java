@@ -20,25 +20,24 @@ public class ActionParser {
    */
   public Module parseActions(Map<String, Object> taskYaml) {
 
-    if (taskYaml != null) {
+    if (taskYaml == null) {
       return new Module("default-fallback");
     }
 
     // Here we have the ontological vendor-specific modules in ansible.
     // If the ansible play uses a specific task-type it must have a dedicated parsing here.
-    switch (taskYaml.keySet().stream().findFirst().orElse("")) {
-      case "community.general.launchd":
-        return parseLaunchD(taskYaml);
-      case "docker_network":
-        return parseDockerNetwork(taskYaml);
-      case "docker_image":
-        return parseDockerImage(taskYaml);
-      case "docker_container":
-        return parseDockerContainer(taskYaml);
-      case "apt":
-        return parseApt(taskYaml);
-      default:
-        return new Module("default-fallback");
+    if (taskYaml.get("community.general.launchd") != null) {
+      return parseLaunchD(taskYaml);
+    } else if (taskYaml.get("docker_network") != null) {
+      return parseDockerNetwork(taskYaml);
+    } else if (taskYaml.get("docker_image") != null) {
+      return parseDockerImage(taskYaml);
+    } else if (taskYaml.get("docker_container") != null) {
+      return parseDockerContainer(taskYaml);
+    } else if (taskYaml.get("apt") != null) {
+      return parseApt(taskYaml);
+    } else {
+      return new Module("default-fallback");
     }
   }
 
