@@ -11,11 +11,11 @@ public class Play {
 
   private HashSet<Host> hosts;
 
-  private HashSet<Task> preTasks;
+  private HashSet<Task> pre_tasks;
 
   private HashSet<Task> tasks;
 
-  private HashSet<Task> postTasks;
+  private HashSet<Task> post_tasks;
 
   private HashSet<Role> roles;
 
@@ -29,9 +29,9 @@ public class Play {
    *
    * @param name The name of the play.
    * @param hosts The hosts of the play.
-   * @param preTasks The pre-tasks of the play.
+   * @param pre_tasks The pre-tasks of the play.
    * @param tasks The tasks of the play.
-   * @param postTasks The post-tasks of the play.
+   * @param post_tasks The post-tasks of the play.
    * @param roles The roles of the play.
    * @param vars The variables of the play.
    * @param become The become of the play.
@@ -39,17 +39,17 @@ public class Play {
   public Play(
       String name,
       HashSet<Host> hosts,
-      HashSet<Task> preTasks,
+      HashSet<Task> pre_tasks,
       HashSet<Task> tasks,
-      HashSet<Task> postTasks,
+      HashSet<Task> post_tasks,
       HashSet<Role> roles,
       HashSet<Variable> vars,
       Boolean become) {
     this.name = name;
     this.hosts = hosts;
-    this.preTasks = preTasks;
+    this.pre_tasks = pre_tasks;
     this.tasks = tasks;
-    this.postTasks = postTasks;
+    this.post_tasks = post_tasks;
     this.roles = roles;
     this.vars = vars;
     this.become = become;
@@ -71,12 +71,12 @@ public class Play {
     this.hosts = hosts;
   }
 
-  public HashSet<Task> getPreTasks() {
-    return preTasks;
+  public HashSet<Task> getPre_tasks() {
+    return pre_tasks;
   }
 
-  public void setPreTasks(HashSet<Task> preTasks) {
-    this.preTasks = preTasks;
+  public void setPre_tasks(HashSet<Task> pre_tasks) {
+    this.pre_tasks = pre_tasks;
   }
 
   public HashSet<Task> getTasks() {
@@ -87,12 +87,12 @@ public class Play {
     this.tasks = tasks;
   }
 
-  public HashSet<Task> getPostTasks() {
-    return postTasks;
+  public HashSet<Task> getPost_tasks() {
+    return post_tasks;
   }
 
-  public void setPostTasks(HashSet<Task> postTasks) {
-    this.postTasks = postTasks;
+  public void setPost_tasks(HashSet<Task> post_tasks) {
+    this.post_tasks = post_tasks;
   }
 
   public HashSet<Role> getRoles() {
@@ -135,9 +135,9 @@ public class Play {
     Play play = (Play) o;
     return Objects.equals(name, play.name)
         && Objects.equals(hosts, play.hosts)
-        && Objects.equals(preTasks, play.preTasks)
+        && Objects.equals(pre_tasks, play.pre_tasks)
         && Objects.equals(tasks, play.tasks)
-        && Objects.equals(postTasks, play.postTasks)
+        && Objects.equals(post_tasks, play.post_tasks)
         && Objects.equals(roles, play.roles)
         && Objects.equals(vars, play.vars)
         && Objects.equals(become, play.become);
@@ -150,7 +150,7 @@ public class Play {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
+    return Objects.hash(name, hosts, pre_tasks, tasks, post_tasks, roles, vars, become);
   }
 
   /**
@@ -168,13 +168,13 @@ public class Play {
         + getHosts()
         + "'"
         + ", preTasks='"
-        + getPreTasks()
+        + getPre_tasks()
         + "'"
         + ", tasks='"
         + getTasks()
         + "'"
         + ", postTasks='"
-        + getPostTasks()
+        + getPost_tasks()
         + "'"
         + ", roles='"
         + getRoles()

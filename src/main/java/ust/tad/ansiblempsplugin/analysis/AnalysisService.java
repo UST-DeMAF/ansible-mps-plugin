@@ -470,15 +470,28 @@ public class AnalysisService {
       return new HashSet<>();
     }
 
-    Map<String, String> mainVarsList;
+    Map<String, Object> mainVarsList;
     try {
-      mainVarsList = (Map<String, String>) mainVarsYaml;
+      mainVarsList = (Map<String, Object>) mainVarsYaml;
     } catch (Exception e) {
-      LOG.error("could not parse global variables {}", e.getMessage());
+      LOG.error("could not parse variables {}", e.getMessage());
       return new HashSet<>();
     }
     HashSet<Variable> vars = new HashSet<>();
-    mainVarsList.forEach((key, value) -> vars.add(new Variable(key, value)));
+    mainVarsList.forEach(
+        (key, value) -> {
+          if (value instanceof String) {
+            vars.add(new Variable(key, (String) value));
+          } else if (value instanceof List) {
+            ((ArrayList<Object>) value)
+                .forEach(
+                    innerValue -> {
+                      if (innerValue instanceof String) {
+                        vars.add(new Variable(key, (String) innerValue));
+                      }
+                    });
+          }
+        });
     return vars;
   }
 
@@ -513,13 +526,15 @@ public class AnalysisService {
    */
   private static Play resolveVariables(Play play) {
 
-    for (Task task : play.getPreTasks()) {
+    // TODO theoretically vars can be added by vars in outer scopes, this is not covered yet.
+
+    for (Task task : play.getPre_tasks()) {
       iterateStringFields(task, task.getVars(), null, play.getVars());
     }
     for (Task task : play.getTasks()) {
       iterateStringFields(task, task.getVars(), null, play.getVars());
     }
-    for (Task task : play.getPostTasks()) {
+    for (Task task : play.getPost_tasks()) {
       iterateStringFields(task, task.getVars(), null, play.getVars());
     }
 

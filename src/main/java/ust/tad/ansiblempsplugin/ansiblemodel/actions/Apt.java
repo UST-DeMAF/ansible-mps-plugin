@@ -31,6 +31,7 @@ public class Apt extends Module {
    * @param state The state of the package.
    */
   public Apt(String name, String state) {
+    super.setType("apt");
     this.name = name;
     this.state = state;
   }
