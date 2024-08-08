@@ -6,9 +6,9 @@ import ust.tad.ansiblempsplugin.ansiblemodel.Variable;
 
 public class DockerContainer extends Module {
 
-  private String containerName;
+  private String name;
   private String image;
-  private String restartPolicy;
+  private String restart_policy;
   private String memory;
   private String state;
   private String network_mode;
@@ -21,9 +21,9 @@ public class DockerContainer extends Module {
    * Constructs a DockerContainer object with the specified container name, image, restart policy,
    * memory, state, network mode, log driver, environment variables, networks, and log options.
    *
-   * @param containerName The name of the container.
+   * @param name The name of the container.
    * @param image The image of the container.
-   * @param restartPolicy The restart policy of the container.
+   * @param restart_policy The restart policy of the container.
    * @param memory The memory of the container.
    * @param state The state of the container.
    * @param network_mode The network mode of the container.
@@ -33,9 +33,9 @@ public class DockerContainer extends Module {
    * @param log_options The log options of the container.
    */
   public DockerContainer(
-      String containerName,
+      String name,
       String image,
-      String restartPolicy,
+      String restart_policy,
       String memory,
       String state,
       String network_mode,
@@ -44,9 +44,9 @@ public class DockerContainer extends Module {
       HashSet<Variable> networks,
       HashSet<Variable> log_options) {
     super.setType("docker_container");
-    this.containerName = containerName;
+    this.name = name;
     this.image = image;
-    this.restartPolicy = restartPolicy;
+    this.restart_policy = restart_policy;
     this.memory = memory;
     this.state = state;
     this.network_mode = network_mode;
@@ -58,12 +58,12 @@ public class DockerContainer extends Module {
 
   public DockerContainer() {}
 
-  public String getContainerName() {
-    return containerName;
+  public String getName() {
+    return name;
   }
 
-  public void setContainerName(String containerName) {
-    this.containerName = containerName;
+  public void setName(String name) {
+    this.name = name;
   }
 
   public String getImage() {
@@ -74,12 +74,12 @@ public class DockerContainer extends Module {
     this.image = image;
   }
 
-  public String getRestartPolicy() {
-    return restartPolicy;
+  public String getRestart_policy() {
+    return restart_policy;
   }
 
-  public void setRestartPolicy(String restartPolicy) {
-    this.restartPolicy = restartPolicy;
+  public void setRestart_policy(String restart_policy) {
+    this.restart_policy = restart_policy;
   }
 
   public String getMemory() {
