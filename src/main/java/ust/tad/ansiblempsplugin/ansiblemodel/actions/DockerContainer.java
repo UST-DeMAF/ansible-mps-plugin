@@ -43,6 +43,7 @@ public class DockerContainer extends Module {
       HashSet<Variable> env,
       HashSet<Variable> networks,
       HashSet<Variable> log_options) {
+    super.setType("docker_container");
     this.containerName = containerName;
     this.image = image;
     this.restartPolicy = restartPolicy;

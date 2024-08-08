@@ -15,6 +15,7 @@ public class LaunchD extends Module {
    * @param enabled The enabled status of the launchd.
    */
   public LaunchD(String name, String state, boolean enabled) {
+    super.setType("community.general.launchd");
     this.name = name;
     this.state = state;
     this.enabled = enabled;

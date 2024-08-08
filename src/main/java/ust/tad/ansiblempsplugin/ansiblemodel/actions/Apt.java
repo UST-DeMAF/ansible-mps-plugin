@@ -18,6 +18,7 @@ public class Apt extends Module {
    * @param pkg The list of packages.
    */
   public Apt(String name, String state, HashSet<String> pkg) {
+    super.setType("apt");
     this.name = name;
     this.state = state;
     this.pkg = pkg;

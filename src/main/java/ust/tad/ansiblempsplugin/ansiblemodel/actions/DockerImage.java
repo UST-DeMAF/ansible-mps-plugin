@@ -16,6 +16,7 @@ public class DockerImage extends Module {
    * @param source The source of the image.
    */
   public DockerImage(String name, String source) {
+    super.setType("docker_image");
     this.name = name;
     this.source = source;
   }

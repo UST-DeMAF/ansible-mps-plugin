@@ -14,6 +14,7 @@ public class DockerNetwork extends Module {
    * @param driver The driver of the network.
    */
   public DockerNetwork(String name, String driver) {
+    super.setType("docker_network");
     this.name = name;
     this.driver = driver;
   }
