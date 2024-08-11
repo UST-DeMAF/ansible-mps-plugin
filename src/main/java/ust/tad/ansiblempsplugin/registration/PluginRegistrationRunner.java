@@ -3,7 +3,6 @@ package ust.tad.ansiblempsplugin.registration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.FanoutExchange;
@@ -20,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskReceiver;
 
 import java.io.IOException;
@@ -31,22 +29,18 @@ import java.net.Socket;
  * Runner that is executed at application startup to register this plugin at the Analysis Manager.
  */
 @Component
-public class PluginRegistrationRunner implements ApplicationRunner{
-    
-    private static final Logger LOG =
-      LoggerFactory.getLogger(PluginRegistrationRunner.class);
+public class PluginRegistrationRunner implements ApplicationRunner {
 
-    @Autowired
-    private GenericApplicationContext context;
+  private static final Logger LOG = LoggerFactory.getLogger(PluginRegistrationRunner.class);
 
-    @Autowired
-    private WebClient pluginRegistrationApiClient;
+  @Autowired private GenericApplicationContext context;
 
-    @Autowired
-    private RabbitAdmin rabbitAdmin;
+  @Autowired private WebClient pluginRegistrationApiClient;
 
-    @Autowired
-    private AnalysisTaskReceiver analysisTaskReceiver;
+  @Autowired private RabbitAdmin rabbitAdmin;
+
+  @Autowired private AnalysisTaskReceiver analysisTaskReceiver;
+
 
     @Value("${analysis-manager.plugin-registration.url}")
     private String pluginRegistrationURI;
@@ -55,29 +49,39 @@ public class PluginRegistrationRunner implements ApplicationRunner{
     @Value("${plugin.technology}")
     private String pluginTechnology;
 
-    @Value("${plugin.analysis-type}")
-    private String pluginAnalysisType;
+  @Value("${plugin.analysis-type}")
+  private String pluginAnalysisType;
 
-    @Value("${messaging.analysistask.response.exchange.name}")
-    private String responseExchangeName;
+  @Value("${messaging.analysistask.response.exchange.name}")
+  private String responseExchangeName;
 
-    @Override
-    public void run(ApplicationArguments args) throws JsonProcessingException, InterruptedException {
+  /**
+   * Registers the plugin at the Analysis Manager and creates a listener for the request queue.
+   *
+   * @param args The application arguments.
+   * @throws JsonProcessingException If an error occurs during JSON processing.
+   */
+  @Override
+  public void run(ApplicationArguments args) throws JsonProcessingException, InterruptedException {
 
-        LOG.info("Registering Plugin");
+
+    LOG.info("Registering Plugin");
 
         connectionAttempt();
 
 
         String body = createPluginRegistrationBody();
 
-        PluginRegistrationResponse response = pluginRegistrationApiClient.post()
+    PluginRegistrationResponse response =
+        pluginRegistrationApiClient
+            .post()
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromValue(body))
             .retrieve()
             .bodyToMono(PluginRegistrationResponse.class)
             .block();
+
 
         LOG.info("Received response: " + response.toString());
         
@@ -109,7 +113,12 @@ public class PluginRegistrationRunner implements ApplicationRunner{
             Thread.sleep(2000);
         }
     }
-
+  /**
+   * Creates the body for the plugin registration request.
+   *
+   * @return The body for the plugin registration request.
+   * @throws JsonProcessingException If an error occurs during JSON processing.
+   */
     private String createPluginRegistrationBody() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode plugin = mapper.createObjectNode();
@@ -117,7 +126,13 @@ public class PluginRegistrationRunner implements ApplicationRunner{
         plugin.put("analysisType", pluginAnalysisType);
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(plugin);
     }
-
+  /**
+   * Creates a listener for the specified request queue.
+   *
+   * @param requestQueueName The name of the request queue.
+   * @param messageListener The message listener.
+   * @return The listener for the request queue.
+   */
     private AbstractMessageListenerContainer createListenerForRequestQueue(String requestQueueName, MessageListener messageListener) {
         SimpleMessageListenerContainer listener = new SimpleMessageListenerContainer(rabbitAdmin.getRabbitTemplate().getConnectionFactory());
         listener.addQueueNames(requestQueueName);
