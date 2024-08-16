@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.yaml.snakeyaml.Yaml;
 import ust.tad.ansiblempsplugin.analysis.ansibleactions.ActionParser;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
@@ -82,9 +83,9 @@ public class AnalysisService {
 
     try {
       updateDeploymentModels(this.tsdm, this.tadm);
-    } catch (InvalidPropertyValueException | InvalidRelationException e) {
-      LOG.info(e.getMessage());
-    }
+    } catch (WebClientResponseException e) {
+        LOG.info(e.getMessage());
+      }
 
     if (!newEmbeddedDeploymentModelIndexes.isEmpty()) {
       for (int index : newEmbeddedDeploymentModelIndexes) {
