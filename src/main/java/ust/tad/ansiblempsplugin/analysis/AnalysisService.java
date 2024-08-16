@@ -80,7 +80,11 @@ public class AnalysisService {
       return;
     }
 
-    updateDeploymentModels(this.tsdm, this.tadm);
+    try {
+      updateDeploymentModels(this.tsdm, this.tadm);
+    } catch (InvalidPropertyValueException | InvalidRelationException e) {
+      LOG.info(e.getMessage());
+    }
 
     if (!newEmbeddedDeploymentModelIndexes.isEmpty()) {
       for (int index : newEmbeddedDeploymentModelIndexes) {
