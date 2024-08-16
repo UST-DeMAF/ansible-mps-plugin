@@ -11,6 +11,7 @@ WORKDIR /app
 
 COPY pom.xml .
 COPY src ./src
+COPY mps-transformation-ansible ./mps-transformation-ansible
 
 RUN mvn clean package -DskipTests
 
