@@ -2,9 +2,9 @@ FROM debian:sid
 
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install -y openjdk-11-jdk maven curl \
-    && apt-get autoremove -y \
-    && apt-get autoclean -y
+    && apt-get install --no-install-recommends -y openjdk-11-jdk maven curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /app/target
 WORKDIR /app
