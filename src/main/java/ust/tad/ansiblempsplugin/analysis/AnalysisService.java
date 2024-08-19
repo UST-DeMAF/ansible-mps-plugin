@@ -56,15 +56,14 @@ public class AnalysisService {
    */
   public void startAnalysis(
       UUID taskId, UUID transformationProcessId, List<String> commands, List<Location> locations) {
-    /*TechnologySpecificDeploymentModel completeTsdm =
+    TechnologySpecificDeploymentModel completeTsdm =
         modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
     this.tsdm = getExistingTsdm(completeTsdm, locations);
     if (tsdm == null) {
       analysisTaskResponseSender.sendFailureResponse(
           taskId, "No technology-specific " + "deployment model found!");
       return;
-    }*/
-    this.tsdm = modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
+    }
     this.tadm = modelsService.getTechnologyAgnosticDeploymentModel(transformationProcessId);
 
     try {
