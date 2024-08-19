@@ -80,11 +80,7 @@ public class AnalysisService {
       return;
     }
 
-    try {
-      updateDeploymentModels(this.tsdm, this.tadm);
-    } catch (WebClientResponseException e) {
-        LOG.info(e.getMessage());
-      }
+    updateDeploymentModels(this.tsdm, this.tadm);
 
     if (!newEmbeddedDeploymentModelIndexes.isEmpty()) {
       for (int index : newEmbeddedDeploymentModelIndexes) {
