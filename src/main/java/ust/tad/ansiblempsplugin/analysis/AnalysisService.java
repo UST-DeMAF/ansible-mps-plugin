@@ -79,7 +79,12 @@ public class AnalysisService {
       return;
     }
 
-    updateDeploymentModels(this.tsdm, this.tadm);
+    // FIXME This updating does not work yet. Somehow the model-service is unhappy
+    try {
+      updateDeploymentModels(this.tsdm, this.tadm);
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+    }
 
     if (!newEmbeddedDeploymentModelIndexes.isEmpty()) {
       for (int index : newEmbeddedDeploymentModelIndexes) {
