@@ -108,7 +108,7 @@ public class AnalysisService {
       TechnologySpecificDeploymentModel tsdm, List<Location> locations) {
     for (DeploymentModelContent content : tsdm.getContent()) {
       for (Location location : locations) {
-        if (location.getUrl() == content.getLocation()) {
+        if (location.getUrl().toString().equals(content.getLocation().toString())) {
           return tsdm;
         }
       }
@@ -134,7 +134,7 @@ public class AnalysisService {
   private void updateDeploymentModels(
       TechnologySpecificDeploymentModel tsdm, TechnologyAgnosticDeploymentModel tadm) {
     modelsService.updateTechnologySpecificDeploymentModel(tsdm);
-    modelsService.updateTechnologyAgnosticDeploymentModel(tadm);
+      modelsService.updateTechnologyAgnosticDeploymentModel(tadm);
   }
 
   /**
