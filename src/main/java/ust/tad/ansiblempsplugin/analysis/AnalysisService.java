@@ -133,7 +133,7 @@ public class AnalysisService {
   private void updateDeploymentModels(
       TechnologySpecificDeploymentModel tsdm, TechnologyAgnosticDeploymentModel tadm) {
     modelsService.updateTechnologySpecificDeploymentModel(tsdm);
-      modelsService.updateTechnologyAgnosticDeploymentModel(tadm);
+    modelsService.updateTechnologyAgnosticDeploymentModel(tadm);
   }
 
   /**
