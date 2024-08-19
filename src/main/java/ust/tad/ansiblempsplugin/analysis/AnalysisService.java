@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.yaml.snakeyaml.Yaml;
 import ust.tad.ansiblempsplugin.analysis.ansibleactions.ActionParser;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
