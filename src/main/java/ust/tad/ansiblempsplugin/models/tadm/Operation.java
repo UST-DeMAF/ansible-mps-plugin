@@ -10,14 +10,13 @@ public class Operation {
 
   private List<Artifact> artifacts = new ArrayList<>();
 
-  private Confidence confidence;
+  private Confidence confidence = Confidence.CONFIRMED;
 
   public Operation() {}
 
-  public Operation(String name, List<Artifact> artifacts, Confidence confidence) {
+  public Operation(String name, List<Artifact> artifacts) {
     this.name = name;
     this.artifacts = artifacts;
-    this.confidence = confidence;
   }
 
   public String getName() {
@@ -92,6 +91,6 @@ public class Operation {
   }
 
   public Boolean isConfirmed() {
-    return this.getConfidence().equals(Confidence.CONFIRMED);
+    return true;
   }
 }

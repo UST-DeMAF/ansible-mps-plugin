@@ -11,7 +11,7 @@ public class Relation extends ModelElement {
 
   private Component target;
 
-  private Confidence confidence;
+  private Confidence confidence = Confidence.CONFIRMED;
 
   private static final String INVALIDRELATIONEXCEPTIONMESSAGE =
       "The source and the target of a relation must not be the same component.";
@@ -27,8 +27,7 @@ public class Relation extends ModelElement {
       List<Operation> operations,
       RelationType type,
       Component source,
-      Component target,
-      Confidence confidence)
+      Component target)
       throws InvalidRelationException {
     super(name, description, properties, operations);
     if (Boolean.TRUE.equals(areSourceAndTargetEqual(source, target))) {
@@ -37,7 +36,6 @@ public class Relation extends ModelElement {
       this.type = type;
       this.source = source;
       this.target = target;
-      this.confidence = confidence;
     }
   }
 
@@ -171,6 +169,6 @@ public class Relation extends ModelElement {
   }
 
   public Boolean isConfirmed() {
-    return this.getConfidence().equals(Confidence.CONFIRMED);
+    return true;
   }
 }

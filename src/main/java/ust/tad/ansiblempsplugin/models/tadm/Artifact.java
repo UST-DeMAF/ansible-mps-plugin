@@ -11,15 +11,14 @@ public class Artifact {
 
   private URI fileURI;
 
-  private Confidence confidence;
+  private Confidence confidence = Confidence.CONFIRMED;
 
   public Artifact() {}
 
-  public Artifact(String name, String type, URI fileURI, Confidence confidence) {
+  public Artifact(String name, String type, URI fileURI) {
     this.name = name;
     this.type = type;
     this.fileURI = fileURI;
-    this.confidence = confidence;
   }
 
   public String getName() {
@@ -111,6 +110,6 @@ public class Artifact {
   }
 
   public Boolean isConfirmed() {
-    return this.getConfidence().equals(Confidence.CONFIRMED);
+    return true;
   }
 }

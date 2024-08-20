@@ -12,7 +12,7 @@ public class Property {
 
   private Object value;
 
-  private Confidence confidence;
+  private Confidence confidence = Confidence.CONFIRMED;
 
   private static final String INVALIDPROPERTYVALUEEXCEPTIONMESSAGE =
       "The value '%s' with type '%s' of the property does not match the given type %s";
@@ -20,14 +20,13 @@ public class Property {
   public Property() {}
 
   public Property(
-      String key, PropertyType type, boolean required, Object value, Confidence confidence)
+      String key, PropertyType type, boolean required, Object value)
       throws InvalidPropertyValueException {
     if (isValueMatchingType(type, value)) {
       this.key = key;
       this.type = type;
       this.required = required;
       this.value = value;
-      this.confidence = confidence;
     } else {
       throw new InvalidPropertyValueException(
           String.format(

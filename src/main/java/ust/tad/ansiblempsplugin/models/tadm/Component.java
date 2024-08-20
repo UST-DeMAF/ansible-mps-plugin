@@ -10,7 +10,7 @@ public class Component extends ModelElement {
 
   private List<Artifact> artifacts = new ArrayList<>();
 
-  private Confidence confidence = Confidence.SUSPECTED;
+  private Confidence confidence = Confidence.CONFIRMED;
 
   public Component() {
     super();
@@ -22,12 +22,10 @@ public class Component extends ModelElement {
       List<Property> properties,
       List<Operation> operations,
       ComponentType type,
-      List<Artifact> artifacts,
-      Confidence confidence) {
+      List<Artifact> artifacts) {
     super(name, description, properties, operations);
     this.type = type;
     this.artifacts = artifacts;
-    this.confidence = confidence;
   }
 
   public ComponentType getType() {
@@ -130,6 +128,6 @@ public class Component extends ModelElement {
   }
 
   public Boolean isConfirmed() {
-    return this.getConfidence().equals(Confidence.CONFIRMED);
+    return true;
   }
 }
