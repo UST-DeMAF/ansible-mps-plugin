@@ -19,8 +19,7 @@ public class Property {
 
   public Property() {}
 
-  public Property(
-      String key, PropertyType type, boolean required, Object value)
+  public Property(String key, PropertyType type, boolean required, Object value)
       throws InvalidPropertyValueException {
     if (isValueMatchingType(type, value)) {
       this.key = key;
