@@ -79,7 +79,6 @@ public class AnalysisService {
       return;
     }
 
-    // FIXME This updating does not work yet. Somehow the model-service is unhappy
     try {
       updateDeploymentModels(this.tsdm, this.tadm);
     } catch (Exception e) {
@@ -163,28 +162,11 @@ public class AnalysisService {
       String locationURLString = location.getUrl().toString().trim().replaceAll("\\.$", "");
       URL locationURL = new URL(locationURLString);
 
-      // TODO think about what to do with directories
-      /* if ("file".equals(locationURL.getProtocol()) && new File(locationURL.toURI()).isDirectory()) {
-          File directory = new File(locationURL.toURI());
-          for (File file : Objects.requireNonNull(directory.listFiles())) {
-              String fileExtension = StringUtils.getFilenameExtension(file.toURI().toURL().toString());
-              if (fileExtension != null && supportedFileExtensions.contains(fileExtension)) {
-                  parseFile(file.toURI().toURL());
-              }
-          }
-          DeploymentModelContent contentToRemove = new DeploymentModelContent();
-          for (DeploymentModelContent content : this.tsdm.getContent()) {
-              if (content.getLocation().equals(location.getUrl())) {
-                  contentToRemove = content;
-              }
-          }
-          this.tsdm.removeDeploymentModelContent(contentToRemove);
-      } else {*/
+      // In ansible we cannot allow directories due to the structure of Ansible projects.
       String fileExtension = StringUtils.getFilenameExtension(locationURLString);
       if (supportedFileExtensions.contains(fileExtension)) {
         parseFile(locationURL);
       }
-      /*}*/
     }
 
     this.tadm =
@@ -234,6 +216,16 @@ public class AnalysisService {
           Play play = new Play(name, hosts, preTasks, tasks, postTasks, roles, vars, become);
           Play variableResolvedPlay = resolveVariables(play);
 
+          // Ensure after a new scan the same play cannot be present twice
+          Play playToRemove = null;
+          for (Play existingPlay : plays) {
+            if (existingPlay.getName().equals(variableResolvedPlay.getName())) {
+              playToRemove = existingPlay;
+            }
+          }
+          if (playToRemove != null) {
+            plays.remove(playToRemove);
+          }
           plays.add(variableResolvedPlay);
         });
   }
