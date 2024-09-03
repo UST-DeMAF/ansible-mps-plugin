@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk upgrade --no-cache \
-    && apk add --no-cache bash curl libstdc++ maven openjdk11
+    && apk add --no-cache bash curl libstdc++ maven openjdk11 gcompat
 
 RUN mkdir -p /app/target
 WORKDIR /app
