@@ -16,6 +16,9 @@ public class AnalysisTaskStartRequest {
   @JsonProperty("commands")
   private List<String> commands;
 
+  @JsonProperty("options")
+  private List<String> options;
+
   @JsonProperty("locations")
   private List<Location> locations;
 
@@ -28,13 +31,19 @@ public class AnalysisTaskStartRequest {
    * @param taskId The unique identifier of the task.
    * @param transformationProcessId The unique identifier of the transformation process.
    * @param commands The list of commands to be executed.
+   * @param options The list of options to be used.
    * @param locations The list of locations to be analyzed.
    */
   public AnalysisTaskStartRequest(
-      UUID taskId, UUID transformationProcessId, List<String> commands, List<Location> locations) {
+      UUID taskId,
+      UUID transformationProcessId,
+      List<String> commands,
+      List<String> options,
+      List<Location> locations) {
     this.taskId = taskId;
     this.transformationProcessId = transformationProcessId;
     this.commands = commands;
+    this.options = options;
     this.locations = locations;
   }
 
@@ -60,6 +69,14 @@ public class AnalysisTaskStartRequest {
 
   public void setCommands(List<String> commands) {
     this.commands = commands;
+  }
+
+  public List<String> getOptions() {
+    return this.options;
+  }
+
+  public void setOptions(List<String> options) {
+    this.options = options;
   }
 
   public List<Location> getLocations() {
@@ -104,6 +121,17 @@ public class AnalysisTaskStartRequest {
   }
 
   /**
+   * Sets the list of options and returns the current AnalysisTaskStartRequest object.
+   *
+   * @param options The list of options to be used.
+   * @return The current AnalysisTaskStartRequest object.
+   */
+  public AnalysisTaskStartRequest options(List<String> options) {
+    setOptions(options);
+    return this;
+  }
+
+  /**
    * Sets the list of locations and returns the current AnalysisTaskStartRequest object.
    *
    * @param locations The list of locations to be analyzed.
@@ -130,6 +158,7 @@ public class AnalysisTaskStartRequest {
     return Objects.equals(taskId, analysisTaskStartRequest.taskId)
         && Objects.equals(transformationProcessId, analysisTaskStartRequest.transformationProcessId)
         && Objects.equals(commands, analysisTaskStartRequest.commands)
+        && Objects.equals(options, analysisTaskStartRequest.options)
         && Objects.equals(locations, analysisTaskStartRequest.locations);
   }
 
@@ -140,7 +169,7 @@ public class AnalysisTaskStartRequest {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(taskId, transformationProcessId, commands, locations);
+    return Objects.hash(taskId, transformationProcessId, commands, options, locations);
   }
 
   /**
@@ -159,6 +188,9 @@ public class AnalysisTaskStartRequest {
         + "'"
         + ", commands='"
         + getCommands()
+        + "'"
+        + ", options='"
+        + getOptions()
         + "'"
         + ", locations='"
         + getLocations()

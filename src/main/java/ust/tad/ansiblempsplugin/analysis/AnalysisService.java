@@ -54,7 +54,11 @@ public class AnalysisService {
    * @param locations list of locations
    */
   public void startAnalysis(
-      UUID taskId, UUID transformationProcessId, List<String> commands, List<Location> locations) {
+      UUID taskId,
+      UUID transformationProcessId,
+      List<String> commands,
+      List<String> options,
+      List<Location> locations) {
     TechnologySpecificDeploymentModel completeTsdm =
         modelsService.getTechnologySpecificDeploymentModel(transformationProcessId);
     this.tsdm = getExistingTsdm(completeTsdm, locations);
