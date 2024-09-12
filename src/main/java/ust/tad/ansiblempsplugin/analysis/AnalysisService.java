@@ -345,9 +345,6 @@ public class AnalysisService {
    */
   private HashSet<Task> parseTasks(Object mainTaskYaml) {
 
-    // TODO import_tasks is a statement that imports tasks at a place where other tasks would be.
-    // TODO our parser should in the long term be able to parse this.
-
     if (mainTaskYaml == null) {
       return new HashSet<>();
     }
