@@ -7,7 +7,7 @@ The documentation for setting up the entire DeMAF application locally is [here](
 
 ## Build and Run Application
 
-You can run the application without the [deployment-config](https://github.com/UST-DeMAF/deployment-config) but it will not run as it needs to register itself at the [analysis-manager](https://github.com/UST-DeMAF/analysis-manager).
+You can run the application without the [deployment-config](https://github.com/UST-DeMAF/deployment-config), but it will not run as it needs to register itself at the [analysis-manager](https://github.com/UST-DeMAF/analysis-manager).
 
 If you want to boot it locally nevertheless use the following commands.
 
@@ -25,7 +25,7 @@ This plugin uses [JetBrains MPS](https://www.jetbrains.com/mps/) to facilitate t
 The [matching MPS project](https://github.com/UST-DeMAF/mps-transformation-terraform) is located in another git repository and must be added as a submodule (you can also clone via https):
 
 ```shell
-git submodule add git@github.com:UST-DeMAF/mps-transformation-ansible.git mps-transformation-terraform
+git submodule add git@github.com:UST-DeMAF/mps-transformation-ansible.git mps-transformation-ansible
 ```
 
 To update the MPS application to a new version, execute:
