@@ -14,7 +14,7 @@ If you want to boot it locally nevertheless use the following commands.
 ```shell
 ./mvnw spring-boot:run
 ```
-or:
+or to use the built package:
 ```shell
 ./mvnw package
 java -jar target/ansible-plugin-0.0.1-SNAPSHOT.jar
