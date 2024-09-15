@@ -1,12 +1,11 @@
 FROM alpine:latest
 
 RUN apk upgrade --no-cache \
-    && apk add --no-cache bash curl git libstdc++ maven openjdk11 sudo
+    && apk add --no-cache bash curl libstdc++ maven openjdk11
     
-RUN git clone https://gitlab.com/manoel-linux1/GlibMus-HQ.git \
-    && cd GlibMus-HQ \
-    && chmod a+x compile-x86_64-alpine-linux.sh \
-    && ./compile-x86_64-alpine-linux.sh
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
+    && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk \
+    && apk add glibc-2.35-r1.apk
 
 RUN mkdir -p /app/target
 WORKDIR /app
