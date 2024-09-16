@@ -1,4 +1,4 @@
-FROM --platform linux/amd64 alpine:3.19.0
+FROM --platform=linux/amd64 alpine:3.19.0
 
 ENV GLIBC_VERSION 2.35-r1
 
