@@ -13,7 +13,7 @@ COPY mps-transformation-ansible ./mps-transformation-ansible
 RUN mkdir -p /app/mps-transformation-ansible/transformationInput
 
 # Build the project, using multiple threads and skipping tests
-RUN mvn -T 2C clean package -DskipTests
+RUN mvn -T 2C -q clean package -DskipTests
 
 # Stage 2: Create a minimal runtime image using OpenJDK 11 JRE
 FROM openjdk:11-jre-slim
