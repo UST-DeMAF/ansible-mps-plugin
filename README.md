@@ -22,7 +22,7 @@ java -jar target/ansible-plugin-0.0.1-SNAPSHOT.jar
 
 ## Init and Update Submodule
 This plugin uses [JetBrains MPS](https://www.jetbrains.com/mps/) to facilitate the model-to-model transformation from Ansible to EDMM.
-The [matching MPS project](https://github.com/UST-DeMAF/mps-transformation-terraform) is located in another git repository and must be added as a submodule (you can also clone via https):
+The [matching MPS project](https://github.com/UST-DeMAF/mps-transformation-ansible) is located in another git repository and must be added as a submodule (you can also clone via https):
 
 ```shell
 git submodule add git@github.com:UST-DeMAF/mps-transformation-ansible.git mps-transformation-ansible
