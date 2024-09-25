@@ -14,7 +14,7 @@ RUN mkdir -p /app/mps-transformation-ansible/transformationInput
 
 # Conditionally comment out the line 'executor.execute(prepareMps)' if SLIM=1
 ARG SLIM
-RUN if [ "$SLIM" = "1" ]; then \
+RUN if [ "$SLIM" != "1" ]; then \
     sed -i 's/executor\.execute(prepareMps)/\/\/ executor.execute(prepareMps)/' /app/mps-transformation-ansible/src/main/java/ust/tad/ansiblempsplugin/analysis/TransformationService.java; \
     fi
 
