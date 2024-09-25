@@ -12,6 +12,12 @@ COPY mps-transformation-ansible ./mps-transformation-ansible
 # Create the necessary directory for transformation input
 RUN mkdir -p /app/mps-transformation-ansible/transformationInput
 
+# Conditionally comment out the line 'executor.execute(prepareMps)' if SLIM=1
+ARG SLIM
+RUN if [ "$SLIM" = "1" ]; then \
+    sed -i 's/executor\.execute(prepareMps)/\/\/ executor.execute(prepareMps)/' /app/mps-transformation-ansible/src/main/java/ust/tad/ansiblempsplugin/analysis/TransformationService.java; \
+    fi
+
 # Build the project, using multiple threads and skipping tests
 RUN mvn -T 2C -q clean package -DskipTests
 
