@@ -15,18 +15,20 @@ RUN mkdir -p /app/mps-transformation-ansible/transformationInput
 # Conditionally comment out the line 'executor.execute(prepareMps)' if SLIM=1
 ARG SLIM
 RUN if [ "$SLIM" != "1" ]; then \
-    sed -i 's/executor\.execute(prepareMps)/\/\/ executor.execute(prepareMps)/' /app/mps-transformation-ansible/src/main/java/ust/tad/ansiblempsplugin/analysis/TransformationService.java; \
+    sed -i 's/executor\.execute(prepareMps)/\/\/ executor.execute(prepareMps)/' /app/src/main/java/ust/tad/ansiblempsplugin/analysis/TransformationService.java; \
     fi
 
 # Build the project, using multiple threads and skipping tests
 RUN mvn -T 2C -q clean package -DskipTests
 
-# Download MPS
-RUN cd mps-transformation-ansible && \
-    ./gradlew prepareMps
+# Download MPS iff SLIM!=1
+RUN if [ "$SLIM" != "1" ]; then \
+    cd mps-transformation-ansible && \
+    ./gradlew prepareMps; \
+    fi
 
 # Remove JBR tarball and MPS/Plugin zips
-RUN rm -r /app/mps-transformation-ansible/build/download
+RUN rm -rf /app/mps-transformation-ansible/build/download
 
 # Stage 2: Create a minimal runtime image using OpenJDK 11 JRE
 FROM openjdk:11-jre-slim
