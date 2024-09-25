@@ -60,6 +60,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ env.IMAGE_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-slim
-          build-args: # Set the SLIM env variable to 1 for the build
+          build-args: | # Set the SLIM env variable to 1 for the build
             SLIM=1
           provenance: false
