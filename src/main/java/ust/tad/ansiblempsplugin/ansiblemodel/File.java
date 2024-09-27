@@ -7,7 +7,6 @@ public class File {
   private String path;
 
   public File() {}
-  ;
 
   /**
    * Constructs a File object with the specified path.

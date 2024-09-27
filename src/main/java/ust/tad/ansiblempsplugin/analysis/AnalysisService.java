@@ -18,6 +18,7 @@ import ust.tad.ansiblempsplugin.analysis.ansibleactions.ActionParser;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
 import ust.tad.ansiblempsplugin.analysistask.Location;
 import ust.tad.ansiblempsplugin.ansiblemodel.*;
+import ust.tad.ansiblempsplugin.ansiblemodel.File;
 import ust.tad.ansiblempsplugin.models.ModelsService;
 import ust.tad.ansiblempsplugin.models.tadm.InvalidPropertyValueException;
 import ust.tad.ansiblempsplugin.models.tadm.InvalidRelationException;
@@ -413,6 +414,7 @@ public class AnalysisService {
           HashSet<String> dependencies = new HashSet<>();
           HashSet<Task> tasks = new HashSet<>();
           HashSet<Task> handlers = new HashSet<>();
+          HashSet<File> files = new HashSet<>();
 
           directoryPaths.forEach(
               directory -> {
@@ -449,8 +451,24 @@ public class AnalysisService {
                   LOG.debug("Could not parse role file {}, might not exist.", directory);
                 }
               });
-          roles.add(
-              new Role(roleName, tasks, handlers, vars, defaults, dependencies, new HashSet<>()));
+
+          String possibleFilesPath =
+              removeAfterLastSlash(url.toString()).replace("file:", "")
+                  + "/roles/"
+                  + roleName
+                  + "/files";
+          java.io.File directory = new java.io.File(possibleFilesPath);
+          if (directory.exists() && directory.isDirectory()) {
+            java.io.File[] fileList = directory.listFiles();
+            if (fileList != null) {
+              for (java.io.File file : fileList) {
+                if (file.isFile()) { // Ensure it's a file, not a subdirectory
+                  files.add(new File(file.getAbsolutePath()));
+                }
+              }
+            }
+          }
+          roles.add(new Role(roleName, tasks, handlers, vars, defaults, dependencies, files));
         });
 
     return roles;

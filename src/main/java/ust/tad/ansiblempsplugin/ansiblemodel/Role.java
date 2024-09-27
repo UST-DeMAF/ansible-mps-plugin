@@ -8,7 +8,7 @@ public class Role {
 
   /**
    * Constructs a Role object with the specified name, tasks, handlers, variables, defaults,
-   * dependencies, and file.
+   * dependencies, and files.
    *
    * @param name The name of the role.
    * @param tasks The tasks of the role.
@@ -16,7 +16,7 @@ public class Role {
    * @param vars The variables of the role.
    * @param defaults The defaults of the role.
    * @param dependencies The dependencies of the role.
-   * @param file The file of the role.
+   * @param files The files of the role.
    */
   public Role(
       String name,
@@ -25,14 +25,14 @@ public class Role {
       HashSet<Variable> vars,
       HashSet<Variable> defaults,
       HashSet<String> dependencies,
-      HashSet<File> file) {
+      HashSet<File> files) {
     this.name = name;
     this.tasks = tasks;
     this.handlers = handlers;
     this.vars = vars;
     this.defaults = defaults;
     this.dependencies = dependencies;
-    this.file = file;
+    this.files = files;
   }
 
   private String name;
@@ -47,7 +47,7 @@ public class Role {
 
   private HashSet<String> dependencies;
 
-  private HashSet<File> file;
+  private HashSet<File> files;
 
   public String getName() {
     return name;
@@ -97,11 +97,11 @@ public class Role {
     this.dependencies = dependencies;
   }
 
-  public HashSet<File> getFile() {
-    return file;
+  public HashSet<File> getFiles() {
+    return files;
   }
 
-  public void setFile(HashSet<File> file) {
-    this.file = file;
+  public void setFiles(HashSet<File> files) {
+    this.files = files;
   }
 }
