@@ -3,69 +3,71 @@ package ust.tad.ansiblempsplugin.ansiblemodel;
 import java.util.Objects;
 
 public class Variable {
-    
-    private String identifier;
 
-    private String expression;
+  private String name;
+  private String value;
 
+  public Variable() {}
 
-    public Variable() {
-    }
+  /**
+   * Constructs a Variable object with the specified name and value.
+   *
+   * @param name The name of the variable.
+   * @param value The value of the variable.
+   */
+  public Variable(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    public Variable(String identifier, String expression) {
-        this.identifier = identifier;
-        this.expression = expression;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getIdentifier() {
-        return this.identifier;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public String getExpression() {
-        return this.expression;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
+  /**
+   * Compares this Variable object to the specified object.
+   *
+   * @param o The object to compare this Variable object against.
+   * @return {@code true} if the given object represents a Variable equivalent to this Variable
+   *     object, {@code false} otherwise.
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Variable)) return false;
+    Variable variable = (Variable) o;
+    return Objects.equals(name, variable.name) && Objects.equals(value, variable.value);
+  }
 
-    public Variable identifier(String identifier) {
-        setIdentifier(identifier);
-        return this;
-    }
+  /**
+   * Returns the hash code value for this Variable object.
+   *
+   * @return The hash code value for this Variable object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, value);
+  }
 
-    public Variable expression(String expression) {
-        setExpression(expression);
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Variable)) {
-            return false;
-        }
-        Variable variable = (Variable) o;
-        return Objects.equals(identifier, variable.identifier) && Objects.equals(expression, variable.expression);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(identifier, expression);
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-            " identifier='" + getIdentifier() + "'" +
-            ", expression='" + getExpression() + "'" +
-            "}";
-    }
-
-    
+  /**
+   * Returns a string representation of this Variable object.
+   *
+   * @return A string representation of this Variable object.
+   */
+  @Override
+  public String toString() {
+    return "Variable{" + "name='" + name + '\'' + ", value='" + value + '\'' + '}';
+  }
 }

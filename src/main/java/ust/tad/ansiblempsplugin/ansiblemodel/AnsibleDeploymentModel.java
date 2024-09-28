@@ -6,52 +6,59 @@ import java.util.Set;
 
 public class AnsibleDeploymentModel {
 
-    private Set<Resource> resources = new HashSet<>();
+  private Set<Play> plays = new HashSet<>();
 
-    private Set<Variable> variables = new HashSet<>();
+  public AnsibleDeploymentModel() {}
 
-    public AnsibleDeploymentModel() {
-    }
+  /**
+   * Constructs an AnsibleDeploymentModel object with the specified set of plays.
+   *
+   * @param plays The set of plays.
+   */
+  public AnsibleDeploymentModel(Set<Play> plays) {
+    this.plays = plays;
+  }
 
-    public AnsibleDeploymentModel(Set<Resource> resources, Set<Variable> variables) {
-        this.resources = resources;
-        this.variables = variables;
-    }
+  public Set<Play> getPlays() {
+    return plays;
+  }
 
-    public Set<Resource> getResources() {
-        return resources;
-    }
+  public void setPlays(Set<Play> resources) {
+    this.plays = plays;
+  }
 
-    public void setResources(Set<Resource> resources) {
-        this.resources = resources;
-    }
+  /**
+   * Checks if the AnsibleDeploymentModel object is equal to the specified object.
+   *
+   * @param o The object to compare this AnsibleDeploymentModel object against.
+   * @return {@code true} if the specified object is equal to this AnsibleDeploymentModel object,
+   *     {@code false} otherwise.
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    AnsibleDeploymentModel that = (AnsibleDeploymentModel) o;
+    return Objects.equals(plays, that.plays);
+  }
 
-    public Set<Variable> getVariables() {
-        return variables;
-    }
+  /**
+   * Returns the hash code value for this AnsibleDeploymentModel object.
+   *
+   * @return The hash code value for this AnsibleDeploymentModel object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(plays);
+  }
 
-    public void setVariables(Set<Variable> variables) {
-        this.variables = variables;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AnsibleDeploymentModel that = (AnsibleDeploymentModel) o;
-        return Objects.equals(resources, that.resources) && Objects.equals(variables, that.variables);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(resources, variables);
-    }
-
-    @Override
-    public String toString() {
-        return "AnsibleDeploymentModel{" +
-                "resources=" + resources +
-                ", variables=" + variables +
-                '}';
-    }
+  /**
+   * Returns a string representation of this AnsibleDeploymentModel object.
+   *
+   * @return A string representation of this AnsibleDeploymentModel object.
+   */
+  @Override
+  public String toString() {
+    return "AnsibleDeploymentModel{" + "plays=" + plays + '}';
+  }
 }
