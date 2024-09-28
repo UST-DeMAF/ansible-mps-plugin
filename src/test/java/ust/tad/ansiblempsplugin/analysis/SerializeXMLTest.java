@@ -1,7 +1,18 @@
 package ust.tad.ansiblempsplugin.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import ust.tad.ansiblempsplugin.ansiblemodel.*;
+import ust.tad.ansiblempsplugin.ansiblemodel.actions.DockerImage;
 
 @SpringBootTest
 public class SerializeXMLTest {
@@ -9,8 +20,6 @@ public class SerializeXMLTest {
   @Value("${mps.inputModel.path}")
   private String mpsInputPath;
 
-  // TODO FIX TESTS
-  /*
   @Test
   public void serializeAnsibleToXML() throws JsonProcessingException {
     AnsibleDeploymentModel modelToSerialize = createDummyModel();
@@ -31,21 +40,27 @@ public class SerializeXMLTest {
     assertNotNull(file);
   }
 
-
   private AnsibleDeploymentModel createDummyModel() {
-    Argument argument = new Argument("key", "val");
-    Argument argument2 = new Argument("key2", "val2");
-    Argument argument3 = new Argument("key3", "val3");
-    Argument argumentFromVariable = new Argument("keyVar", "var.key");
-    Block block = new Block("newBlockType", Set.of(argument2, argument3));
 
-    Resource resource =
-        new Resource("newResourceType", "newResource", Set.of(argument), Set.of(block));
-    Resource resource2 =
-        new Resource("newResource2Type", "newResource2", Set.of(argumentFromVariable), Set.of());
+    HashSet<Variable> vars = new HashSet<>();
+    vars.add(new Variable("test-key", "test-value"));
 
-    Variable variable = new Variable("var.key", "variableValue");
+    HashSet<Host> hosts = new HashSet<>();
+    hosts.add(new Host("test-host", vars, "test-group"));
 
-    return new AnsibleDeploymentModel(Set.of(resource, resource2), Set.of(variable));
-  }*/
+    HashSet<Task> tasks = new HashSet<>();
+    tasks.add(
+        new Task(
+            "test-task",
+            vars,
+            false,
+            new DockerImage("test-name", "test-source"),
+            new HashSet<>()));
+
+    HashSet<Role> roles = new HashSet<>();
+    roles.add(new Role("test-role", tasks, tasks, vars, vars, new HashSet<>(), new HashSet<>()));
+
+    Play play = new Play("test-play", hosts, tasks, tasks, tasks, roles, vars, true);
+    return new AnsibleDeploymentModel(Set.of(play));
+  }
 }
