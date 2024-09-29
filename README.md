@@ -1,6 +1,7 @@
 # ansible-mps-plugin
 The ansible-mps-plugin is one of many plugins of the [DeMAF](https://github.com/UST-DeMAF) project.
 It is designed to transform [Ansible deployment models](https://docs.ansible.com) into an [EDMM](https://github.com/UST-EDMM) representation.
+The transformation rules are described in the [TRANSFORMATION_RULES.md](TRANSFORMATION_RULES.md).
 
 The plugin only works (without adaptions) in the context of the entire DeMAF application using the [deployment-config](https://github.com/UST-DeMAF/deployment-config).
 The documentation for setting up the entire DeMAF application locally is [here](https://github.com/UST-DeMAF/EnPro-Documentation).
