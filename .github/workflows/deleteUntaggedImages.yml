@@ -2,8 +2,10 @@ name: deleteUntaggedImages
 
 on:
   workflow_run:
-    workflows: ['buildAndPushImage']
-    types: [completed]
+    workflows:
+      - buildAndPushImage
+    types:
+      - completed
 
 env:
   PACKAGE_NAME: analysis-manager
