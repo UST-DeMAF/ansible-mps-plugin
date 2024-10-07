@@ -70,7 +70,7 @@ jobs:
       - uses: actions/delete-package-versions@v5
         with:
           owner: ${{ github.repository_owner }}
-          package-name: ${{ IMAGE_NAME }}
+          package-name: ${{ env.IMAGE_NAME }}
           package-type: "container"
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 3
