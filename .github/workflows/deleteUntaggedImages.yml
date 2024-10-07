@@ -16,9 +16,9 @@ jobs:
     steps:
       - uses: actions/delete-package-versions@v5
         with:
-          #owner: ${{ github.repository_owner }}
+          owner: ${{ github.repository_owner }}
           package-name: ${{ PACKAGE_NAME }}
           package-type: ${{ PACKAGE_TYPE }}
-          #token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 3
           delete-only-pre-release-versions: "true"
