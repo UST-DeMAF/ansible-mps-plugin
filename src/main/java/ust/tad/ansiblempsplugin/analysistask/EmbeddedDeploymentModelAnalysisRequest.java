@@ -1,9 +1,6 @@
 package ust.tad.ansiblempsplugin.analysistask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class EmbeddedDeploymentModelAnalysisRequest {
 
@@ -19,17 +16,21 @@ public class EmbeddedDeploymentModelAnalysisRequest {
 
   private List<Location> locations = new ArrayList<>();
 
+  private Map<String, List<String>> tadmEntities = new HashMap<>();
+
   public EmbeddedDeploymentModelAnalysisRequest() {}
 
   /**
    * Constructs an EmbeddedDeploymentModelAnalysisRequest object with the specified parent task ID,
-   * transformation process ID, technology, list of commands, and list of locations.
+   * transformation process ID, technology, list of commands, list of locations, and map of tadm
+   * entities.
    *
    * @param parentTaskId The unique identifier of the parent task.
    * @param transformationProcessId The unique identifier of the transformation process.
    * @param technology The technology used in the deployment model.
    * @param commands The list of commands to be executed.
    * @param locations The list of locations to be analyzed.
+   * @param tadmEntities The map of tadm entities to be analyzed.
    */
   public EmbeddedDeploymentModelAnalysisRequest(
       UUID parentTaskId,
@@ -37,13 +38,15 @@ public class EmbeddedDeploymentModelAnalysisRequest {
       String technology,
       List<String> commands,
       List<String> options,
-      List<Location> locations) {
+      List<Location> locations,
+      Map<String, List<String>> tadmEntities) {
     this.parentTaskId = parentTaskId;
     this.transformationProcessId = transformationProcessId;
     this.technology = technology;
     this.commands = commands;
     this.options = options;
     this.locations = locations;
+    this.tadmEntities = tadmEntities;
   }
 
   public UUID getParentTaskId() {
@@ -92,6 +95,14 @@ public class EmbeddedDeploymentModelAnalysisRequest {
 
   public void setLocations(List<Location> locations) {
     this.locations = locations;
+  }
+
+  public Map<String, List<String>> getTadmEntities() {
+    return tadmEntities;
+  }
+
+  public void setTadmEntities(Map<String, List<String>> tadmEntities) {
+    this.tadmEntities = tadmEntities;
   }
 
   /**
@@ -165,11 +176,22 @@ public class EmbeddedDeploymentModelAnalysisRequest {
   }
 
   /**
-   * Adds a command to the list of commands and returns the current
-   * EmbeddedDeploymentModelAnalysisRequest object.
+   * Sets the map of tadm entities and returns the current EmbeddedDeploymentModelAnalysisRequest
+   * object.
    *
-   * @param command The command to be added.
+   * @param tadmEntities The map of tadm entities to be analyzed.
    * @return The current EmbeddedDeploymentModelAnalysisRequest object.
+   */
+  public EmbeddedDeploymentModelAnalysisRequest tadmEntities(Map<String, List<String>> tadmEntities) {
+    setTadmEntities(tadmEntities);
+    return this;
+  }
+
+  /**
+   * Compares this EmbeddedDeploymentModelAnalysisRequest object to another object.
+   *
+   * @param o The object to compare to.
+   * @return {@code true} if the objects are equal, {@code false} otherwise.
    */
   @Override
   public boolean equals(Object o) {
@@ -185,7 +207,8 @@ public class EmbeddedDeploymentModelAnalysisRequest {
         && Objects.equals(technology, embeddedDeploymentModelAnalysisRequest.technology)
         && Objects.equals(commands, embeddedDeploymentModelAnalysisRequest.commands)
         && Objects.equals(options, embeddedDeploymentModelAnalysisRequest.options)
-        && Objects.equals(locations, embeddedDeploymentModelAnalysisRequest.locations);
+        && Objects.equals(locations, embeddedDeploymentModelAnalysisRequest.locations)
+        && Objects.equals(tadmEntities, embeddedDeploymentModelAnalysisRequest.tadmEntities);
   }
 
   /**
@@ -196,7 +219,7 @@ public class EmbeddedDeploymentModelAnalysisRequest {
   @Override
   public int hashCode() {
     return Objects.hash(
-        parentTaskId, transformationProcessId, technology, commands, options, locations);
+        parentTaskId, transformationProcessId, technology, commands, options, locations, tadmEntities);
   }
 
   /**
@@ -224,6 +247,9 @@ public class EmbeddedDeploymentModelAnalysisRequest {
         + "'"
         + ", locations='"
         + getLocations()
+        + "'"
+        + ", tadmEntities='"
+        + getTadmEntities()
         + "'"
         + "}";
   }

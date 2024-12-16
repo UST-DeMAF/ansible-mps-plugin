@@ -1,7 +1,7 @@
 # Open TODOs in the Ansible MPS Plugin
 
 ### 1. Enhance Variable replacement  
-Vars can be used by vars in outer scopes, this is not covered yet in variable replacement.
+Vars can be used by vars in outer scopes, this is not covered yet in variable replacement (see AnalysisService.java, line 548).
 
 ### 2. Finalize the implementation of the ansible metamodel
 Fully implement the metamodels and all keywords for Ansible in all stages meaning: Update the models and update the

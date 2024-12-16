@@ -22,6 +22,9 @@ public class AnalysisTaskStartRequest {
   @JsonProperty("locations")
   private List<Location> locations;
 
+  @JsonProperty("tadmEntities")
+  private  List<TADMEntities> tadmEntities;
+
   public AnalysisTaskStartRequest() {}
 
   /**
@@ -33,18 +36,21 @@ public class AnalysisTaskStartRequest {
    * @param commands The list of commands to be executed.
    * @param options The list of options to be used.
    * @param locations The list of locations to be analyzed.
+   * @param tadmEntities The list of tadmEntities to be analyzed.
    */
   public AnalysisTaskStartRequest(
       UUID taskId,
       UUID transformationProcessId,
       List<String> commands,
       List<String> options,
-      List<Location> locations) {
+      List<Location> locations,
+      List<TADMEntities> tadmEntities) {
     this.taskId = taskId;
     this.transformationProcessId = transformationProcessId;
     this.commands = commands;
     this.options = options;
     this.locations = locations;
+    this.tadmEntities = tadmEntities;
   }
 
   public UUID getTaskId() {
@@ -85,6 +91,14 @@ public class AnalysisTaskStartRequest {
 
   public void setLocations(List<Location> locations) {
     this.locations = locations;
+  }
+
+  public List<TADMEntities> getTadmEntities() {
+    return tadmEntities;
+  }
+
+  public void setTadmEntities(List<TADMEntities> tadmEntities) {
+    this.tadmEntities = tadmEntities;
   }
 
   /**
@@ -143,6 +157,17 @@ public class AnalysisTaskStartRequest {
   }
 
   /**
+   * Sets the list of tadmEntities and returns the current AnalysisTaskStartRequest object.
+   *
+   * @param tadmEntities The list of tadm entities to be analyzed.
+   * @return The current AnalysisTaskStartRequest object.
+   */
+  public AnalysisTaskStartRequest tadmEntities(List<TADMEntities> tadmEntities) {
+    setTadmEntities(tadmEntities);
+    return this;
+  }
+
+  /**
    * Compares this AnalysisTaskStartRequest object to another object.
    *
    * @param o The object to compare to.
@@ -159,7 +184,8 @@ public class AnalysisTaskStartRequest {
         && Objects.equals(transformationProcessId, analysisTaskStartRequest.transformationProcessId)
         && Objects.equals(commands, analysisTaskStartRequest.commands)
         && Objects.equals(options, analysisTaskStartRequest.options)
-        && Objects.equals(locations, analysisTaskStartRequest.locations);
+        && Objects.equals(locations, analysisTaskStartRequest.locations)
+        && Objects.equals(tadmEntities, analysisTaskStartRequest.tadmEntities);
   }
 
   /**
@@ -169,7 +195,7 @@ public class AnalysisTaskStartRequest {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(taskId, transformationProcessId, commands, options, locations);
+    return Objects.hash(taskId, transformationProcessId, commands, options, locations, tadmEntities);
   }
 
   /**
@@ -194,6 +220,9 @@ public class AnalysisTaskStartRequest {
         + "'"
         + ", locations='"
         + getLocations()
+        + "'"
+        + ", tadmEntities='"
+        + getTadmEntities()
         + "'"
         + "}";
   }

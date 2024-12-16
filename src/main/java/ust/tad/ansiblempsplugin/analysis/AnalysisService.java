@@ -1,12 +1,5 @@
 package ust.tad.ansiblempsplugin.analysis;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +11,21 @@ import ust.tad.ansiblempsplugin.analysis.ansibleactions.ActionParser;
 import ust.tad.ansiblempsplugin.analysistask.AnalysisTaskResponseSender;
 import ust.tad.ansiblempsplugin.analysistask.Location;
 import ust.tad.ansiblempsplugin.ansiblemodel.*;
-import ust.tad.ansiblempsplugin.ansiblemodel.File;
 import ust.tad.ansiblempsplugin.models.ModelsService;
 import ust.tad.ansiblempsplugin.models.tadm.InvalidPropertyValueException;
 import ust.tad.ansiblempsplugin.models.tadm.InvalidRelationException;
 import ust.tad.ansiblempsplugin.models.tadm.TechnologyAgnosticDeploymentModel;
 import ust.tad.ansiblempsplugin.models.tsdm.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"unchecked"})
 @Service
@@ -71,7 +73,7 @@ public class AnalysisService {
     this.tadm = modelsService.getTechnologyAgnosticDeploymentModel(transformationProcessId);
 
     try {
-      runAnalysis(locations);
+      runAnalysis(taskId, locations);
     } catch (InvalidNumberOfContentException
         | URISyntaxException
         | IOException
@@ -147,6 +149,7 @@ public class AnalysisService {
    * contained files. Removes the deployment model content associated with the old directory
    * locations because it has been resolved to the contained files.
    *
+   * @param taskId the taskId as UUID
    * @param locations list of locations
    * @throws InvalidNumberOfContentException tbd
    * @throws InvalidAnnotationException tbd
@@ -155,7 +158,7 @@ public class AnalysisService {
    * @throws URISyntaxException tbd
    * @throws InvalidPropertyValueException tbd
    */
-  private void runAnalysis(List<Location> locations)
+  private void runAnalysis(UUID taskId, List<Location> locations)
       throws URISyntaxException,
           IOException,
           InvalidNumberOfLinesException,
@@ -175,8 +178,8 @@ public class AnalysisService {
     }
 
     this.tadm =
-        transformationService.transformInternalToTADM(
-            this.tadm, new AnsibleDeploymentModel(this.plays));
+            transformationService.transformInternalToTADM(taskId,
+                    this.tadm, new AnsibleDeploymentModel(this.plays));
   }
 
   /**
