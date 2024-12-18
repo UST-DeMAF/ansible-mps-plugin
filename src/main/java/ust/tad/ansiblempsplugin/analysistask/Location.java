@@ -63,9 +63,9 @@ public class Location {
   }
 
   /**
-   * Sets the ID and returns the current Location object.
+   * Sets the url and returns the current Location object.
    *
-   * @param id The unique identifier of the location.
+   * @param url The url of the location.
    * @return The current Location object.
    */
   public Location url(URL url) {
@@ -96,10 +96,10 @@ public class Location {
   }
 
   /**
-   * Sets the ID and returns the current Location object.
+   * Compares this Location object to another object.
    *
-   * @param id The unique identifier of the location.
-   * @return The current Location object.
+   * @param o The object to compare to.
+   * @return {@code true} if the objects are equal, {@code false} otherwise.
    */
   @Override
   public boolean equals(Object o) {
