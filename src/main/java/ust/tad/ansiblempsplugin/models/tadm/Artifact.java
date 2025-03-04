@@ -9,16 +9,16 @@ public class Artifact {
 
   private String type;
 
-  private URI fileUri;
+  private URI fileURI;
 
   private Confidence confidence = Confidence.CONFIRMED;
 
   public Artifact() {}
 
-  public Artifact(String name, String type, URI fileUri) {
+  public Artifact(String name, String type, URI fileURI) {
     this.name = name;
     this.type = type;
-    this.fileUri = fileUri;
+    this.fileURI = fileURI;
   }
 
   public String getName() {
@@ -37,12 +37,12 @@ public class Artifact {
     this.type = type;
   }
 
-  public URI getFileUri() {
-    return this.fileUri;
+  public URI getFileURI() {
+    return this.fileURI;
   }
 
-  public void setFileUri(URI fileUri) {
-    this.fileUri = fileUri;
+  public void setFileURI(URI fileURI) {
+    this.fileURI = fileURI;
   }
 
   public Confidence getConfidence() {
@@ -63,8 +63,8 @@ public class Artifact {
     return this;
   }
 
-  public Artifact fileUri(URI fileUri) {
-    setFileUri(fileUri);
+  public Artifact fileURI(URI fileURI) {
+    setFileURI(fileURI);
     return this;
   }
 
@@ -82,13 +82,13 @@ public class Artifact {
     Artifact artifact = (Artifact) o;
     return Objects.equals(name, artifact.name)
         && Objects.equals(type, artifact.type)
-        && Objects.equals(fileUri, artifact.fileUri)
+        && Objects.equals(fileURI, artifact.fileURI)
         && Objects.equals(confidence, artifact.confidence);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, type, fileUri, confidence);
+    return Objects.hash(name, type, fileURI, confidence);
   }
 
   @Override
@@ -100,8 +100,8 @@ public class Artifact {
         + ", type='"
         + getType()
         + "'"
-        + ", fileUri='"
-        + getFileUri()
+        + ", fileURI='"
+        + getFileURI()
         + "'"
         + ", confidence='"
         + getConfidence()
