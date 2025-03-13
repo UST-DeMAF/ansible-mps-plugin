@@ -352,7 +352,6 @@ public class AnalysisService {
    * @return the HashSet of parsed tasks
    */
   private HashSet<Task> parseTasks(Object mainTaskYaml) {
-
     if (mainTaskYaml == null) {
       return new HashSet<>();
     }
@@ -462,19 +461,32 @@ public class AnalysisService {
                   + "/files";
           java.io.File directory = new java.io.File(possibleFilesPath);
           if (directory.exists() && directory.isDirectory()) {
-            java.io.File[] fileList = directory.listFiles();
-            if (fileList != null) {
-              for (java.io.File file : fileList) {
-                if (file.isFile()) { // Ensure it's a file, not a subdirectory
-                  files.add(new File(file.getAbsolutePath()));
-                }
-              }
-            }
+            parseFiles(files, directory);
           }
           roles.add(new Role(roleName, tasks, handlers, vars, defaults, dependencies, files));
         });
 
     return roles;
+  }
+
+  /**
+   * Iterate over the files in the given directory and all subdirectories and collect the paths of
+   * the files.
+   *
+   * @param files the collected list of file paths.
+   * @param directory the directory to scan for files.
+   */
+  private void parseFiles(HashSet<File> files, java.io.File directory) {
+    java.io.File[] fileList = directory.listFiles();
+    if (fileList != null) {
+      for (java.io.File file : fileList) {
+        if (file.isFile()) { // Ensure it's a file, not a subdirectory
+          files.add(new File(file.getAbsolutePath()));
+        } else if (file.isDirectory()) {
+          parseFiles(files, file);
+        }
+      }
+    }
   }
 
   /**
